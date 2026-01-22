@@ -30,7 +30,33 @@ bot.on("message", async (ctx: Context) => {
 
         if (!validation.isValid) {
             console.log(`[BANNED] ${from?.username} - Reason: ${validation.reason}`);
-            // TODO: Ban user and delete message
+            await ctx.reply(`⛔ Banned: ${validation.reason}`, {
+                reply_parameters: { message_id: message?.message_id! },
+            });
+
+            // Try to delete recent messages from this user
+            const messageId = message?.message_id!;
+            const chatId = chat.id;
+            
+            // Delete a range of recent messages from this user (from current message backwards)
+            // We try to delete messages within a reasonable range
+            for (let i = 0; i < 10; i++) {
+                try {
+                    await ctx.api.deleteMessage(chatId, messageId - i);
+                } catch (error) {
+                    // Silently fail, message might not exist or already deleted
+                }
+            }
+
+            // Ban the user
+            try {
+                await ctx.api.banChatMember(chatId, from?.id!, {
+                    revoke_messages: true,
+                });
+            } catch (error) {
+                console.error(`Failed to ban user: ${error}`);
+            }
+
             return;
         }
     }
