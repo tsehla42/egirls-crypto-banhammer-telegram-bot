@@ -62,11 +62,21 @@ export const containsMixedAlphabets = (text: string): boolean => {
 
         // If word has mixed alphabets (2 or more different alphabets)
         if (alphabets.length >= 2) {
-            // Check if any alphabet appears 2+ times
+            // Find the dominant alphabet (most frequent)
+            let dominantAlphabet = alphabets[0];
+            let maxCount = alphabetCounts[alphabets[0]];
+
             for (const alphabet of alphabets) {
-                if (alphabetCounts[alphabet] >= 2) {
-                    // This alphabet appears multiple times while mixed with another
-                    // This is a character confusion attack
+                if (alphabetCounts[alphabet] > maxCount) {
+                    maxCount = alphabetCounts[alphabet];
+                    dominantAlphabet = alphabet;
+                }
+            }
+
+            // Check if any non-dominant alphabet appears 2+ times
+            for (const alphabet of alphabets) {
+                if (alphabet !== dominantAlphabet && alphabetCounts[alphabet] >= 2) {
+                    // A minority alphabet appears 2+ times - this is intentional obfuscation
                     return true;
                 }
             }
