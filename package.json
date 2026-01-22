@@ -1,0 +1,11 @@
+{
+  "name": "egirls-crypto-banhammer-telegram-bot",
+  "version": "1.0.0",
+  "description": "Bot made for chat moderation of comments chat in Telegram messenger",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tsehla42",
+  "license": "GPL-3.0"
+}
