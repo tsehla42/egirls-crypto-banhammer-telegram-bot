@@ -11,3 +11,6 @@ node_modules
 
 # Build outputs
 dist/
+
+# Source files
+references/result.json
