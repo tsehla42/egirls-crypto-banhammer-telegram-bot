@@ -2,10 +2,25 @@
   "name": "egirls-crypto-banhammer-telegram-bot",
   "version": "1.0.0",
   "description": "Bot made for chat moderation of comments chat in Telegram messenger",
-  "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "tsehla42",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "main": "dist/bot.js",
+  "scripts": {
+    "compile": "npx tsc",
+    "watch-compile": "tsc --watch",
+    "bot": "nodemon -w dist -x node dist/bot.js",
+    "dev": "concurrently npm:watch-compile npm:bot",
+    "compose": "compose.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "env-var": "^7.5.0",
+    "grammy": "^1.39.3"
+  }
 }
