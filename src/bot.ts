@@ -2,6 +2,7 @@ import { Bot, Context } from "grammy";
 import { API_KEY } from "./config";
 import { log } from "console";
 import { validateMessage } from "./validators";
+import { banUserAndDeleteMessages } from "./services/BanService";
 
 const bot = new Bot(API_KEY as string);
 
@@ -34,27 +35,11 @@ bot.on("message", async (ctx: Context) => {
                 reply_parameters: { message_id: message?.message_id! },
             });
 
-            // Try to delete recent messages from this user
-            const messageId = message?.message_id!;
-            const chatId = chat.id;
-            
-            // Delete a range of recent messages from this user (from current message backwards)
-            // We try to delete messages within a reasonable range
-            for (let i = 0; i < 10; i++) {
-                try {
-                    await ctx.api.deleteMessage(chatId, messageId - i);
-                } catch (error) {
-                    // Silently fail, message might not exist or already deleted
-                }
-            }
-
-            // Ban the user
+            // Ban user and delete their messages
             try {
-                await ctx.api.banChatMember(chatId, from?.id!, {
-                    revoke_messages: true,
-                });
+                await banUserAndDeleteMessages(ctx, from?.id!, validation.reason);
             } catch (error) {
-                console.error(`Failed to ban user: ${error}`);
+                console.error(`Failed to execute ban: ${error}`);
             }
 
             return;
