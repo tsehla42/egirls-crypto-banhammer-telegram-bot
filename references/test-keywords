@@ -1,0 +1,12 @@
+σκύλος
+helloΑ
+worldΓ
+привеΤ
+москΩ
+helloпривΑ
+testмосΓ
+hello123привΑлатин
+# Valid: Cyrillic characters only (Ukrainian), Latin С looks similar but is actually Cyrillic
+Складнопідрядний
+# Invalid: Mix of Latin C + Cyrillic к and Latin i + Cyrillic і - character confusion attack
+Cкладнопiдрядний
