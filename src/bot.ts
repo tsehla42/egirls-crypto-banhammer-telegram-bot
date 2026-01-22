@@ -11,16 +11,18 @@ bot.on("message", async (ctx: Context) => {
   const chat = ctx.chat;
   const from = ctx.from;
 
-  console.log({
-    chatType: chat?.type,
-    chatId: chat?.id,
-    chatTitle: chat?.title,
-    userId: from?.id,
-    userUsername: from?.username,
-    userName: from?.first_name,
-    messageText: message?.text,
-    messageId: message?.message_id,
-  });
+  if (process.env.NODE_ENV !== "production") {
+    console.log({
+      chatType: chat?.type,
+      chatId: chat?.id,
+      chatTitle: chat?.title,
+      userId: from?.id,
+      userUsername: from?.username,
+      userName: from?.first_name,
+      messageText: message?.text,
+      messageId: message?.message_id,
+    });
+  }
 
   if (chat?.type === "group" || chat?.type === "supergroup") {
     const validation = validateMessage(message?.text || "");
