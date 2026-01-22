@@ -10,3 +10,13 @@ hello123привΑлатин
 Складнопідрядний
 # Invalid: Mix of Latin C + Cyrillic к and Latin i + Cyrillic і - character confusion attack
 Cкладнопiдрядний
+
+# Pattern tests for mixed alphabet detection
+computer # ALLOWED - LLLLLLLL (all Latin)
+Сomputer # ALLOWED - CLLLLLLL (1 Cyrillic С + rest Latin)
+compuтer # ALLOWED - LLLLCLLL (Latin compu + 1 Cyrillic т + Latin er)
+привет # ALLOWED - CCCCCCC (all Cyrillic)
+прiвет # ALLOWED - CCCLCCC (Cyrillic пр + 1 Latin i + Cyrillic вет)
+iнформа # ALLOWED - LCCCCCC (1 Latin i + rest Cyrillic)
+compuтeр # BANNED - LLLCLLLC (Latin + 2 Cyrillic т,р mixed in)
+прiвeт # BANNED - CCCCLCCCL (Cyrillic + 2 Latin i,e mixed in)

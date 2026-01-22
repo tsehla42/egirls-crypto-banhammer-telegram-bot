@@ -11,7 +11,8 @@
     "bot": "nodemon -w dist -x node dist/bot.js",
     "dev": "concurrently npm:watch-compile npm:bot",
     "compose": "compose.sh",
-    "clean-messages": "npx ts-node references/clean-messages.ts"
+    "clean-messages": "npx ts-node references/clean-messages.ts",
+    "unban-test-user": "npx ts-node scripts/unban-test-user.ts"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
