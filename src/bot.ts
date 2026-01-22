@@ -1,6 +1,7 @@
 import { Bot, Context } from "grammy";
 import { API_KEY } from "./config";
 import { log } from "console";
+import { validateMessage } from "./validators";
 
 const bot = new Bot(API_KEY as string);
 
@@ -24,7 +25,14 @@ bot.on("message", async (ctx: Context) => {
 
     // Only process moderation for group chats
     if (chat?.type === "group" || chat?.type === "supergroup") {
-        // TODO: Add moderation rules here
+        // Validate message against moderation rules
+        const validation = validateMessage(message?.text || "");
+
+        if (!validation.isValid) {
+            console.log(`[BANNED] ${from?.username} - Reason: ${validation.reason}`);
+            // TODO: Ban user and delete message
+            return;
+        }
     }
 });
 
