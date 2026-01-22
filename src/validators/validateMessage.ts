@@ -2,12 +2,9 @@
  * Main message validator that applies all moderation rules
  */
 
-import { containsGreekSymbols } from './greekSymbolRule';
-import { containsMixedAlphabets } from './mixedAlphabetRule';
+import { findGreekSymbol } from './greekSymbolRule';
+import { findMixedAlphabetWord } from './mixedAlphabetRule';
 
-/**
- * Validation result object
- */
 export interface ValidationResult {
   isValid: boolean;
   reason?: string;
@@ -19,17 +16,19 @@ export interface ValidationResult {
  * @returns ValidationResult with validity status and reason if invalid
  */
 export const validateMessage = (text: string): ValidationResult => {
-  if (containsGreekSymbols(text)) {
+  const greekMatch = findGreekSymbol(text);
+  if (greekMatch) {
     return {
       isValid: false,
-      reason: 'Message contains Greek alphabet symbols',
+      reason: `Message contains Greek alphabet symbol \`${greekMatch.symbol}\` in a word \`${greekMatch.word}\``,
     };
   }
 
-  if (containsMixedAlphabets(text)) {
+  const mixedWord = findMixedAlphabetWord(text);
+  if (mixedWord) {
     return {
       isValid: false,
-      reason: 'Message contains mixed alphabets in a single word (character confusion attack)',
+      reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
     };
   }
 

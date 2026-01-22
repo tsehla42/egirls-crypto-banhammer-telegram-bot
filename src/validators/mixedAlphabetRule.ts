@@ -9,9 +9,9 @@ import { getAlphabetType } from './alphabetUtils';
  * This detects character confusion attacks (e.g., Latin 'C' mixed with Cyrillic characters)
  * One character could be a typo, but 2+ is intentional obfuscation
  * @param text - Message text to validate
- * @returns true if mixed alphabet attack is detected, false otherwise
+ * @returns The problematic word if detected, null otherwise
  */
-export const containsMixedAlphabets = (text: string): boolean => {
+export const findMixedAlphabetWord = (text: string): string | null => {
   // Split text into words, keeping only letters
   const words = text.match(/[a-zA-Zа-яА-ЯіїєґІЇЄҐ]+/g) || [];
 
@@ -45,11 +45,11 @@ export const containsMixedAlphabets = (text: string): boolean => {
       for (const alphabet of alphabets) {
         if (alphabet !== dominantAlphabet && alphabetCounts[alphabet] >= 2) {
           // A minority alphabet appears 2+ times - this is intentional obfuscation
-          return true;
+          return word;
         }
       }
     }
   }
 
-  return false;
+  return null;
 };

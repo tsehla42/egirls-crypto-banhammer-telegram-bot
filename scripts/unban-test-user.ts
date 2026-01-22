@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Api } from "grammy";
 import { API_KEY, TEST_USER_ID, CHAT_ID } from "../src/config";
 
 /**
@@ -8,7 +8,7 @@ import { API_KEY, TEST_USER_ID, CHAT_ID } from "../src/config";
  */
 
 const unbanTestUser = async () => {
-    const bot = new Bot(API_KEY as string);
+    const api = new Api(API_KEY as string);
 
     // You need to specify the chat ID where you want to unban the user
     // Replace this with your actual chat ID or pass it as a command-line argument
@@ -30,7 +30,7 @@ const unbanTestUser = async () => {
         
         // Unban the user
         // only_if_banned: true means unban only if the user is currently banned
-        await bot.api.unbanChatMember(chatId, TEST_USER_ID, {
+        await api.unbanChatMember(chatId, TEST_USER_ID, {
             only_if_banned: true,
         });
 

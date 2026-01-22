@@ -2,12 +2,11 @@ import { Bot, Context } from "grammy";
 import { API_KEY } from "./config";
 import { validateMessage } from "./validators";
 import { banUserAndDeleteMessages } from "./services/BanService";
+import { replyAndLog } from "./services/ReplyService";
 
 const bot = new Bot(API_KEY as string);
 
-// Handle all messages in group chats
 bot.on("message", async (ctx: Context) => {
-  // Get message and chat information
   const message = ctx.msg;
   const chat = ctx.chat;
   const from = ctx.from;
@@ -23,18 +22,12 @@ bot.on("message", async (ctx: Context) => {
     messageId: message?.message_id,
   });
 
-  // Only process moderation for group chats
   if (chat?.type === "group" || chat?.type === "supergroup") {
-    // Validate message against moderation rules
     const validation = validateMessage(message?.text || "");
 
     if (!validation.isValid) {
-      console.log(`[BANNED] ${from?.username} - Reason: ${validation.reason}`);
-      await ctx.reply(`⛔ Banned: ${validation.reason}`, {
-        reply_parameters: { message_id: message?.message_id! },
-      });
+      await replyAndLog(ctx, validation);
 
-      // Ban user and delete their messages
       try {
         await banUserAndDeleteMessages(ctx, from?.id!, validation.reason!);
       } catch (error) {
