@@ -1,27 +1,28 @@
 import { Context } from "grammy";
+import { logBan } from "./LogService";
+import { type ValidationResult } from "../validators";
 
 /**
- * Ban user and delete their violating message
+ * Ban user, delete their violating message, and log the event
  * @param ctx - grammY context
- * @param userId - ID of user to ban
- * @param reason - Reason for ban
+ * @param validation - Validation result with ban reason and trigger info
  */
 export const banUserAndDeleteMessages = async (
     ctx: Context,
-    userId: number,
-    reason: string
+    validation: ValidationResult
 ): Promise<void> => {
     const chat = ctx.chat;
     const message = ctx.msg;
+    const from = ctx.from;
     const api = ctx.api;
 
-    if (!chat) {
-        throw new Error("Chat information not available");
+    if (!chat || !from) {
+        throw new Error("Chat or user information not available");
     }
 
     try {
         console.log(
-            `[BanService] Banning user ${userId} with reason: "${reason}".`
+            `[BanService] Banning user ${from.id} with reason: "${validation.reason}".`
         );
 
         if (message?.message_id) {
@@ -33,8 +34,18 @@ export const banUserAndDeleteMessages = async (
             }
         }
 
-        await api.banChatMember(chat.id, userId);
-        console.log(`[BanService] User ${userId} banned from chat`);
+        await api.banChatMember(chat.id, from.id);
+        console.log(`[BanService] User ${from.id} banned from chat`);
+
+        // Log the ban event
+        if (validation.ruleName && validation.triggerWord) {
+            logBan({
+                user: from,
+                chat: chat,
+                ruleName: validation.ruleName,
+                triggerWord: validation.triggerWord,
+            });
+        }
     } catch (error) {
         console.error(`Failed to ban user: ${error}`);
         throw error;

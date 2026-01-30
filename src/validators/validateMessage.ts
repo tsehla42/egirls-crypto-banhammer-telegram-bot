@@ -8,6 +8,8 @@ import { findMixedAlphabetWord } from './mixedAlphabetRule';
 export interface ValidationResult {
   isValid: boolean;
   reason?: string;
+  ruleName?: string;
+  triggerWord?: string;
 }
 
 /**
@@ -21,6 +23,8 @@ export const validateMessage = (text: string): ValidationResult => {
     return {
       isValid: false,
       reason: `Message contains Greek alphabet symbol \`${greekMatch.symbol}\` in a word \`${greekMatch.word}\``,
+      ruleName: 'greek_rule',
+      triggerWord: greekMatch.word,
     };
   }
 
@@ -29,6 +33,8 @@ export const validateMessage = (text: string): ValidationResult => {
     return {
       isValid: false,
       reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
+      ruleName: 'mixed_rule',
+      triggerWord: mixedWord,
     };
   }
 
