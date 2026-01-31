@@ -8,47 +8,47 @@ import { type ValidationResult } from "../validators";
  * @param validation - Validation result with ban reason and trigger info
  */
 export const banUserAndDeleteMessages = async (
-    ctx: Context,
-    validation: ValidationResult
+  ctx: Context,
+  validation: ValidationResult
 ): Promise<void> => {
-    const chat = ctx.chat;
-    const message = ctx.msg;
-    const from = ctx.from;
-    const api = ctx.api;
+  const chat = ctx.chat;
+  const message = ctx.msg;
+  const from = ctx.from;
+  const api = ctx.api;
 
-    if (!chat || !from) {
-        throw new Error("Chat or user information not available");
+  if (!chat || !from) {
+    throw new Error("Chat or user information not available");
+  }
+
+  try {
+    console.log(
+      `[BanService] Banning user ${from.id} with reason: "${validation.reason}".`
+    );
+
+    if (message?.message_id) {
+      try {
+        await api.deleteMessage(chat.id, message.message_id);
+        console.log(`[BanService] Deleted violating message ${message.message_id}`);
+      } catch (deleteError) {
+        console.error(`[BanService] Failed to delete message: ${deleteError}`);
+      }
     }
 
-    try {
-        console.log(
-            `[BanService] Banning user ${from.id} with reason: "${validation.reason}".`
-        );
+    await api.banChatMember(chat.id, from.id);
+    console.log(`[BanService] User ${from.id} banned from chat`);
 
-        if (message?.message_id) {
-            try {
-                await api.deleteMessage(chat.id, message.message_id);
-                console.log(`[BanService] Deleted violating message ${message.message_id}`);
-            } catch (deleteError) {
-                console.error(`[BanService] Failed to delete message: ${deleteError}`);
-            }
-        }
-
-        await api.banChatMember(chat.id, from.id);
-        console.log(`[BanService] User ${from.id} banned from chat`);
-
-        // Log the ban event
-        if (validation.ruleName && validation.triggerWord) {
-            logBan({
-                user: from,
-                chat: chat,
-                ruleName: validation.ruleName,
-                triggerWord: validation.triggerWord,
-            });
-        }
-    } catch (error) {
-        console.error(`[BanService] Failed to ban user: ${error}`);
-        throw error;
+    // Log the ban event
+    if (validation.ruleName && validation.triggerWord) {
+      logBan({
+        user: from,
+        chat: chat,
+        ruleName: validation.ruleName,
+        triggerWord: validation.triggerWord,
+      });
     }
+  } catch (error) {
+    console.error(`[BanService] Failed to ban user: ${error}`);
+    throw error;
+  }
 };
 
