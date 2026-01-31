@@ -1,5 +1,6 @@
 import { Api } from "grammy";
-import { API_KEY, TEST_USER_ID, CHAT_ID } from "../src/config";
+import { API_KEY, TEST_USER_ID } from "../src/config";
+import { getAllBotGroups } from "./list-bot-groups";
 
 /**
  * Script to unban the test user from all chats where the bot is admin
@@ -10,48 +11,55 @@ import { API_KEY, TEST_USER_ID, CHAT_ID } from "../src/config";
 const unbanTestUser = async () => {
     const api = new Api(API_KEY as string);
 
-    // You need to specify the chat ID where you want to unban the user
-    // Replace this with your actual chat ID or pass it as a command-line argument
-    const chatId = CHAT_ID;
+    console.log(`🔍 Finding all groups where bot has ban permissions...\n`);
 
-    if (!chatId) {
-        console.error("❌ Error: Chat ID is required");
-        console.log("\nUsage: npm run unban-test-user <CHAT_ID>");
-        console.log("\nExample: npm run unban-test-user -1001234567890");
-        console.log("\nTo get the chat ID:");
-        console.log("1. Add the bot to your group");
-        console.log("2. Send a message in the group");
-        console.log("3. Check the bot logs for 'chatId' field");
+    const groups = await getAllBotGroups(true);
+    const banCapableGroups = groups.filter(g => g.canBanUsers);
+
+    if (banCapableGroups.length === 0) {
+        console.log("❌ No groups found where bot can ban users.");
+        console.log("\nMake sure:");
+        console.log("1. The bot is an admin in at least one group");
+        console.log("2. The bot has 'Ban users' permission");
+        console.log("3. There are log files in the 'logs' directory");
         process.exit(1);
     }
 
-    try {
-        console.log(`🔓 Unbanning user ${TEST_USER_ID} from chat ${chatId}...`);
-        
-        // Unban the user
-        // only_if_banned: true means unban only if the user is currently banned
-        await api.unbanChatMember(chatId, TEST_USER_ID, {
-            only_if_banned: true,
-        });
+    console.log(`Found ${banCapableGroups.length} group(s) with ban permissions.\n`);
 
-        console.log(`✅ Successfully unbanned user ${TEST_USER_ID} from chat ${chatId}`);
-    } catch (error: any) {
-        console.error(`❌ Failed to unban user: ${error.message}`);
-        
-        if (error.error_code === 400) {
-            console.log("\nPossible reasons:");
-            console.log("- The user is not banned");
-            console.log("- Invalid chat ID");
-            console.log("- The bot is not an admin in this chat");
-        } else if (error.error_code === 403) {
-            console.log("\nThe bot doesn't have permission to unban users.");
-            console.log("Make sure the bot has 'Ban users' permission in the group settings.");
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const group of banCapableGroups) {
+        try {
+            console.log(`🔓 Unbanning user ${TEST_USER_ID} from "${group.title}" (${group.chatId})...`);
+            
+            // Unban the user
+            // only_if_banned: true means unban only if the user is currently banned
+            await api.unbanChatMember(group.chatId, TEST_USER_ID, {
+                only_if_banned: true,
+            });
+
+            console.log(`   ✅ Successfully unbanned from "${group.title}"`);
+            successCount++;
+        } catch (error: any) {
+            console.error(`   ❌ Failed to unban from "${group.title}": ${error.message}`);
+            failCount++;
+            
+            if (error.error_code === 400) {
+                console.log("      Possible reasons: user not banned, invalid chat, or bot not admin");
+            } else if (error.error_code === 403) {
+                console.log("      Bot doesn't have permission to unban users in this chat");
+            }
         }
-        
-        process.exit(1);
     }
 
-    process.exit(0);
+    console.log(`\n📊 Summary:`);
+    console.log(`   Successful: ${successCount}`);
+    console.log(`   Failed: ${failCount}`);
+    console.log(`   Total: ${banCapableGroups.length}`);
+
+    process.exit(failCount > 0 ? 1 : 0);
 };
 
 unbanTestUser();
