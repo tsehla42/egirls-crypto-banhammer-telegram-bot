@@ -49,7 +49,7 @@ const getLogFilePath = (chat: Chat): string => {
   const chatUsername = getChatUsername(chat) || "nousername";
   const chatId = chat.id;
 
-  const filename = `${chatTitle}-${chatUsername}-${chatId}.ban.log`;
+  const filename = `${chatTitle}-${chatUsername}${chatId}.ban.log`;
   return join(LOG_DIR, filename);
 };
 
