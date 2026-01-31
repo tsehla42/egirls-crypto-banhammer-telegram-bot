@@ -9,7 +9,6 @@ import {
 } from "../utils";
 
 const LOG_DIR = join(process.cwd(), "logs");
-const LOG_FILE = join(LOG_DIR, "bans.ban.log");
 
 /**
  * Data required for logging a ban event
@@ -31,9 +30,33 @@ const ensureLogDir = (): void => {
 };
 
 /**
- * Log a ban event to the log file
- * Format: firstName lastName @username oduserId ruleName triggerWord chatTitle @chatUsername chatId
- * Example: John Doe @johndoe 12334567890 greek_rule σκύλος ChatName @chatname -154314132131
+ * Sanitize a string for use in a filename
+ * Removes or replaces characters that are invalid in filenames
+ */
+const sanitizeForFilename = (value: string): string => {
+  return value
+    .replace(/[<>:"/\\|?*]/g, "") // Remove invalid filename characters
+    .replace(/\s+/g, "_") // Replace spaces with underscores
+    .trim();
+};
+
+/**
+ * Generate log file path for a specific chat
+ * Format: chatname-chatusername-chatid.ban.log
+ */
+const getLogFilePath = (chat: Chat): string => {
+  const chatTitle = sanitizeForFilename(getChatTitle(chat) || "unknown");
+  const chatUsername = getChatUsername(chat) || "nousername";
+  const chatId = chat.id;
+
+  const filename = `${chatTitle}-${chatUsername}-${chatId}.ban.log`;
+  return join(LOG_DIR, filename);
+};
+
+/**
+ * Log a ban event to the chat-specific log file
+ * Format: timestamp firstName lastName @username userId ruleName triggerWord
+ * Example: 2026-01-31T12:00:00.000Z John Doe @johndoe 12334567890 greek_rule σκύλος
  */
 export const logBan = (data: BanLogData): void => {
   ensureLogDir();
@@ -45,15 +68,13 @@ export const logBan = (data: BanLogData): void => {
   const userId = data.user.id;
   const ruleName = data.ruleName;
   const triggerWord = data.triggerWord;
-  const chatTitle = formatValue(getChatTitle(data.chat));
-  const chatUsername = formatUsername(getChatUsername(data.chat));
-  const chatId = data.chat.id;
 
-  const logLine = `${timestamp} ${firstName} ${lastName} ${username} ${userId} ${ruleName} ${triggerWord} ${chatTitle} ${chatUsername} ${chatId}\n`;
+  const logFile = getLogFilePath(data.chat);
+  const logLine = `${timestamp} ${firstName} ${lastName} ${username} ${userId} ${ruleName} ${triggerWord}\n`;
 
   try {
-    appendFileSync(LOG_FILE, logLine);
-    console.log(`[LogService] Ban logged: ${logLine.trim()}`);
+    appendFileSync(logFile, logLine);
+    console.log(`[LogService] Ban logged to ${logFile}: ${logLine.trim()}`);
   } catch (error) {
     console.error(`[LogService] Failed to write log: ${error}`);
   }
