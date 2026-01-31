@@ -20,3 +20,7 @@ compuтer # ALLOWED - LLLLCLLL (Latin compu + 1 Cyrillic т + Latin er)
 iнформа # ALLOWED - LCCCCCC (1 Latin i + rest Cyrillic)
 compuтeр # BANNED - LLLCLLLC (Latin + 2 Cyrillic т,р mixed in)
 прiвeт # BANNED - CCCCLCCCL (Cyrillic + 2 Latin i,e mixed in)
+
+
+# 
+AдмiнЛоx
