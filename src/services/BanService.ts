@@ -30,7 +30,7 @@ export const banUserAndDeleteMessages = async (
                 await api.deleteMessage(chat.id, message.message_id);
                 console.log(`[BanService] Deleted violating message ${message.message_id}`);
             } catch (deleteError) {
-                console.error(`Failed to delete message: ${deleteError}`);
+                console.error(`[BanService] Failed to delete message: ${deleteError}`);
             }
         }
 
@@ -47,7 +47,7 @@ export const banUserAndDeleteMessages = async (
             });
         }
     } catch (error) {
-        console.error(`Failed to ban user: ${error}`);
+        console.error(`[BanService] Failed to ban user: ${error}`);
         throw error;
     }
 };

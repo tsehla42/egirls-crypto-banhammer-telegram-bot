@@ -38,12 +38,7 @@ bot.on("message", async (ctx: Context) => {
 
     if (!validation.isValid) {
       await replyAndLog(ctx, validation);
-
-      try {
-        await banUserAndDeleteMessages(ctx, validation);
-      } catch (error) {
-        console.error(`Failed to execute ban: ${error}`);
-      }
+      await banUserAndDeleteMessages(ctx, validation);
 
       return;
     }

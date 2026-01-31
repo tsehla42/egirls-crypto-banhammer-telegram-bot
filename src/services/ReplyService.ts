@@ -12,7 +12,6 @@ export const replyAndLog = async (
     const formattedReason = formatBanReason(validation);
     
     try {
-        console.log(`[BANNED] ${userIdentifier} - Reason: ${validation.reason}`);
         await ctx.reply(
             `🖕 Banned user <b>${userIdentifier}</b>\nReason: ${formattedReason}`,
             {
@@ -21,6 +20,6 @@ export const replyAndLog = async (
             }
         );
     } catch (error) {
-        console.error(`Failed to send reply message: ${error}`);
+        console.error(`[ReplyService] Failed to send reply message: ${error}`);
     }
 }
