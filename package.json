@@ -12,6 +12,7 @@
     "dev": "concurrently npm:watch-compile npm:bot",
     "compose": "compose.sh",
     "clean-messages": "npx ts-node references/clean-messages.ts",
+    "list-groups": "npx ts-node scripts/list-bot-groups.ts",
     "unban-test-user": "npx ts-node scripts/unban-test-user.ts"
   },
   "devDependencies": {

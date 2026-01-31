@@ -11,7 +11,12 @@ node_modules
 
 # Build outputs
 dist/
+
+# Ban logs
 logs/
+
+# Data files
+data/chat-registry.json
 
 # Source files
 references/result.json

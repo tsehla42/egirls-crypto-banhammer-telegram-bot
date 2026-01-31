@@ -3,8 +3,11 @@ import { API_KEY } from "./config";
 import { validateMessage } from "./validators";
 import { banUserAndDeleteMessages } from "./services/BanService";
 import { replyAndLog } from "./services/ReplyService";
+import { handleBotChatMemberUpdate } from "./services/ChatRegistryService";
 
 const bot = new Bot(API_KEY as string);
+
+bot.on("my_chat_member", (ctx) => handleBotChatMemberUpdate(ctx));
 
 bot.on("message", async (ctx: Context) => {
   const message = ctx.msg;
@@ -25,6 +28,12 @@ bot.on("message", async (ctx: Context) => {
   }
 
   if (chat?.type === "group" || chat?.type === "supergroup") {
+    // Skip processing for Telegram channel forwarding (user id 777000)
+    // This is a special Telegram service account for channel messages
+    if (from?.id === 777000) {
+      return;
+    }
+
     const validation = validateMessage(message?.text || "");
 
     if (!validation.isValid) {
