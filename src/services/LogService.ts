@@ -78,7 +78,7 @@ export const logBan = (data: BanLogData): void => {
 
   try {
     appendFileSync(logFile, logLine);
-    console.log(`[LogService] Ban logged to ${logFile}: ${logLine.trim()}`);
+    console.log(`[LogService] Ban logged to \n${logFile}:\n${logLine.trim()}`);
   } catch (error) {
     console.error(`[LogService] Failed to write log: ${error}`);
   }

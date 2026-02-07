@@ -14,8 +14,14 @@ export const forwardViolatingMessage = async (
   const chat = ctx.chat;
   const from = ctx.from;
 
+  console.log(
+    `[ForwardingService] Attempting to forward message ${message?.message_id} from user ${from?.id} to channel ${loggingChannelId}`
+  );
+
   if (!chat || !from || !message?.message_id) {
-    console.warn("[ForwardingService] Missing chat, user, or message info");
+    console.warn(
+      `[ForwardingService] Missing required info: chat=${!!chat}, from=${!!from}, message_id=${message?.message_id}`
+    );
     return;
   }
 
