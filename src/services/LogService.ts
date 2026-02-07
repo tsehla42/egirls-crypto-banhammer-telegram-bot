@@ -25,7 +25,11 @@ export interface BanLogData {
  */
 const ensureLogDir = (): void => {
   if (!existsSync(LOG_DIR)) {
-    mkdirSync(LOG_DIR, { recursive: true });
+    try {
+      mkdirSync(LOG_DIR, { recursive: true });
+    } catch (error) {
+      console.error(`[LogService] Failed to create log directory: ${error}`);
+    }
   }
 };
 

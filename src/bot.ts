@@ -7,6 +7,11 @@ import { handleBotChatMemberUpdate } from "./services/ChatRegistryService";
 
 const bot = new Bot(API_KEY as string);
 
+// Set error handler to prevent bot crashes
+bot.catch = (err) => {
+  console.error("Error in middleware:", err);
+};
+
 bot.on("my_chat_member", (ctx) => handleBotChatMemberUpdate(ctx));
 
 bot.on("message", async (ctx: Context) => {

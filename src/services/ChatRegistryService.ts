@@ -21,8 +21,12 @@ interface ChatRegistry {
 const ensureDataDir = (): void => {
   const dataDir = join(process.cwd(), "data");
   if (!existsSync(dataDir)) {
-    const { mkdirSync } = require("fs");
-    mkdirSync(dataDir, { recursive: true });
+    try {
+      const { mkdirSync } = require("fs");
+      mkdirSync(dataDir, { recursive: true });
+    } catch (error) {
+      console.error(`[ChatRegistry] Failed to create data directory: ${error}`);
+    }
   }
 };
 

@@ -17,7 +17,8 @@ export const banUserAndDeleteMessages = async (
   const api = ctx.api;
 
   if (!chat || !from) {
-    throw new Error("Chat or user information not available");
+    console.error("[BanService] Chat or user information not available");
+    return;
   }
 
   try {
@@ -29,13 +30,18 @@ export const banUserAndDeleteMessages = async (
       try {
         await api.deleteMessage(chat.id, message.message_id);
         console.log(`[BanService] Deleted violating message ${message.message_id}`);
-      } catch (deleteError) {
+      } catch (deleteError: any) {
         console.error(`[BanService] Failed to delete message: ${deleteError}`);
       }
     }
 
-    await api.banChatMember(chat.id, from.id);
-    console.log(`[BanService] User ${from.id} banned from chat`);
+    try {
+      await api.banChatMember(chat.id, from.id);
+      console.log(`[BanService] User ${from.id} banned from chat`);
+    } catch (banError: any) {
+      console.error(`[BanService] Failed to ban user: ${banError}`);
+      return;
+    }
 
     // Log the ban event
     if (validation.ruleName && validation.triggerWord) {
@@ -47,8 +53,7 @@ export const banUserAndDeleteMessages = async (
       });
     }
   } catch (error) {
-    console.error(`[BanService] Failed to ban user: ${error}`);
-    throw error;
+    console.error(`[BanService] Unexpected error: ${error}`);
   }
 };
 
