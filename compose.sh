@@ -7,8 +7,5 @@ PROJECT=egirls-banhammer-bot
 mkdir -p logs data
 sudo chown -R 1000:1000 logs data
 
-docker rm -f egirls-crypto-banhammer-telegram-bot || true
-
-docker build --no-cache -t "$IMAGE" .
-
-COMPOSE_PROJECT_NAME=$PROJECT docker compose up -d
+# Start with the new image (--force-recreate ensures container is rebuilt)
+COMPOSE_PROJECT_NAME=egirls-banhammer-bot docker compose up -d --build --force-recreate --no-deps
