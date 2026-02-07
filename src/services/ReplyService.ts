@@ -2,7 +2,7 @@ import { Context } from "grammy";
 import { type ValidationResult } from "../validators";
 import { formatUserIdentifier, formatBanReason } from "../utils";
 
-export const replyAndLog = async (
+export const replyToViolatingMessage = async (
   ctx: Context,
   validation: ValidationResult,
 ): Promise<void> => {

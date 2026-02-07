@@ -1,15 +1,18 @@
 import { Bot, Context } from "grammy";
-import { API_KEY } from "./config";
+import { API_KEY, ID_VIOLATIONS_LOG_CHANNEL } from "./config";
 import { validateMessage } from "./validators";
-import { banUserAndDeleteMessages } from "./services/BanService";
-import { replyAndLog } from "./services/ReplyService";
-import { handleBotChatMemberUpdate } from "./services/ChatRegistryService";
+import {
+  banUserAndDeleteMessages,
+  replyToViolatingMessage,
+  forwardViolatingMessage,
+  handleBotChatMemberUpdate,
+} from "./services";
+import { debugLog } from "./utils";
 
 const bot = new Bot(API_KEY as string);
 
-// Set error handler to prevent bot crashes
 bot.catch = (err) => {
-  console.error("Error in middleware:", err);
+  console.error("[Bot] Error in middleware:", err);
 };
 
 bot.on("my_chat_member", (ctx) => handleBotChatMemberUpdate(ctx));
@@ -19,18 +22,7 @@ bot.on("message", async (ctx: Context) => {
   const chat = ctx.chat;
   const from = ctx.from;
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log({
-      chatType: chat?.type,
-      chatId: chat?.id,
-      chatTitle: chat?.title,
-      userId: from?.id,
-      userUsername: from?.username,
-      userName: from?.first_name,
-      messageText: message?.text,
-      messageId: message?.message_id,
-    });
-  }
+  debugLog(ctx);
 
   if (chat?.type === "group" || chat?.type === "supergroup") {
     // Skip processing for Telegram channel forwarding (user id 777000)
@@ -42,7 +34,8 @@ bot.on("message", async (ctx: Context) => {
     const validation = validateMessage(message?.text || "");
 
     if (!validation.isValid) {
-      await replyAndLog(ctx, validation);
+      await replyToViolatingMessage(ctx, validation);
+      await forwardViolatingMessage(ctx, ID_VIOLATIONS_LOG_CHANNEL);
       await banUserAndDeleteMessages(ctx, validation);
 
       return;
@@ -52,12 +45,12 @@ bot.on("message", async (ctx: Context) => {
 
 const startBot = async () => {
   try {
-    console.log("Starting bot...");
+    console.log("[Bot] Starting bot...");
     const me = await bot.api.getMe();
-    console.log(`Bot is up and running as @${me.username}`);
+    console.log(`[Bot] Bot is up and running as @${me.username}`);
     await bot.start();
   } catch (error) {
-    console.error("Failed to start bot:", error);
+    console.error("[Bot] Failed to start bot:", error);
     process.exit(1);
   }
 };
