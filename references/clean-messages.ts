@@ -29,7 +29,19 @@ const filtered = messages.filter((msg: Message) => {
   if (msg.text_entities && Array.isArray(msg.text_entities)) {
     const plainEntity = msg.text_entities.find(entity => entity.type === 'plain');
     if (plainEntity) {
-      return plainEntity.text;
+      let text = plainEntity.text
+        .trim()
+        .replace(/ \{ban\}$/, '')      // Remove {ban} marker
+        .replace(/^[""]|[""]$/g, '')    // Remove surrounding quotes
+        .replace(/^\*+|\*+$/g, '')      // Remove surrounding asterisks
+        .trim();
+      
+      // Remove trailing quote if present
+      if (text.endsWith('"')) {
+        text = text.slice(0, -1).trim();
+      }
+      
+      return text;
     }
   }
   return '';

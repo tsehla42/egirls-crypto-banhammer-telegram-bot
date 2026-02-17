@@ -5,5 +5,6 @@
 
 export { findGreekSymbol } from './greekSymbolRule';
 export { findMixedAlphabetWord } from './mixedAlphabetRule';
+export { findSpamKeyword } from './keywordRule';
 export { validateMessage, type ValidationResult } from './validateMessage';
 export { getAlphabetType } from './alphabetUtils';

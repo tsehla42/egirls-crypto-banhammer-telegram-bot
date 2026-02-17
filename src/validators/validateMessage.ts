@@ -4,6 +4,7 @@
 
 import { findGreekSymbol } from './greekSymbolRule';
 import { findMixedAlphabetWord } from './mixedAlphabetRule';
+import { findSpamKeyword } from './keywordRule';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -35,6 +36,16 @@ export const validateMessage = (text: string): ValidationResult => {
       reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
       ruleName: 'mixed_rule',
       triggerWord: mixedWord,
+    };
+  }
+
+  const spamKeyword = findSpamKeyword(text);
+  if (spamKeyword) {
+    return {
+      isValid: false,
+      reason: `Message contains spam keyword \`${spamKeyword}\``,
+      ruleName: 'keyword_rule',
+      triggerWord: spamKeyword,
     };
   }
 
