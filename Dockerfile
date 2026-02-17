@@ -29,6 +29,7 @@ ENV NODE_ENV=production
 COPY --from=build /usr/src/app/package.json ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
+COPY references ./references
 
 # Create necessary directories and set permissions for node user
 RUN mkdir -p logs data && chown -R node:node logs data
