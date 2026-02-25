@@ -2,8 +2,10 @@
  * Main message validator that applies all moderation rules
  */
 
-import { findGreekSymbol } from './greekSymbolRule';
 import { findMixedAlphabetWord } from './mixedAlphabetRule';
+import { findGreek } from './greekRule';
+import { findKorean } from './koreanRule';
+import { findChinese } from './chineseRule';
 import { findSpamKeyword } from './keywordRule';
 
 export interface ValidationResult {
@@ -19,7 +21,17 @@ export interface ValidationResult {
  * @returns ValidationResult with validity status and reason if invalid
  */
 export const validateMessage = (text: string): ValidationResult => {
-  const greekMatch = findGreekSymbol(text);
+  const mixedWord = findMixedAlphabetWord(text);
+  if (mixedWord) {
+    return {
+      isValid: false,
+      reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
+      ruleName: 'mixed_rule',
+      triggerWord: mixedWord,
+    };
+  }
+
+  const greekMatch = findGreek(text);
   if (greekMatch) {
     return {
       isValid: false,
@@ -29,13 +41,23 @@ export const validateMessage = (text: string): ValidationResult => {
     };
   }
 
-  const mixedWord = findMixedAlphabetWord(text);
-  if (mixedWord) {
+  const koreanCount = findKorean(text);
+  if (koreanCount !== null) {
     return {
       isValid: false,
-      reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
-      ruleName: 'mixed_rule',
-      triggerWord: mixedWord,
+      reason: `Message contains ${koreanCount} Korean characters (threshold: 15)`,
+      ruleName: 'korean_rule',
+      triggerWord: `${koreanCount}_korean_chars`,
+    };
+  }
+
+  const chineseCount = findChinese(text);
+  if (chineseCount !== null) {
+    return {
+      isValid: false,
+      reason: `Message contains ${chineseCount} Chinese characters`,
+      ruleName: 'chinese_rule',
+      triggerWord: `${chineseCount}_chinese_chars`,
     };
   }
 

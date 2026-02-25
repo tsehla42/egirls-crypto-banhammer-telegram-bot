@@ -5,7 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { findGreekSymbol } from '../src/validators/greekSymbolRule';
+import { findGreek } from '../src/validators/greekRule';
 import { getAlphabetType } from '../src/validators/alphabetUtils';
 
 const CLEANED_RESULT_PATH = path.join(__dirname, '../references/cleaned-result.json');
@@ -91,7 +91,7 @@ function analyzeSpamMessages(): AnalysisResult {
 
     if (!message) continue;
 
-    const hasGreek = findGreekSymbol(message) !== null;
+    const hasGreek = findGreek(message) !== null;
     const hasMixed = hasAnyMixedAlphabet(message);
     const hasInvisible = hasInvisibleChars(message);
 

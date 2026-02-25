@@ -15,7 +15,7 @@ export interface GreekSymbolMatch {
  * @param text - Message text to validate
  * @returns Object with Greek character and the word it was found in, or null if none found
  */
-export const findGreekSymbol = (text: string): GreekSymbolMatch | null => {
+export const findGreek = (text: string): GreekSymbolMatch | null => {
   // Greek alphabet Unicode ranges
   // Basic Greek: U+0370–U+03FF
   // Greek Extended: U+1F00–U+1FFF
