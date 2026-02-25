@@ -46,14 +46,14 @@ const sanitizeForFilename = (value: string): string => {
 
 /**
  * Generate log file path for a specific chat
- * Format: chatname-chatusername-chatid.ban.log
+ * Format: chatusername-chatname-chatid.ban.log
  */
 const getLogFilePath = (chat: Chat): string => {
   const chatTitle = sanitizeForFilename(getChatTitle(chat) || "unknown");
   const chatUsername = getChatUsername(chat) || "nousername";
   const chatId = chat.id;
 
-  const filename = `${chatTitle}-${chatUsername}${chatId}.ban.log`;
+  const filename = `${chatUsername}-${chatTitle}${chatId}.ban.log`;
   return join(LOG_DIR, filename);
 };
 
