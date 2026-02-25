@@ -24,3 +24,12 @@ compuтeр # BANNED - LLLCLLLC (Latin + 2 Cyrillic т,р mixed in)
 
 # 
 AдмiнЛоx
+
+# Korean (Hangul) tests - threshold: >15 characters triggers ban
+한국사람입니다감사합니다 # PASS - 12 chars (within ≤15) | "I am Korean, thank you"
+한국사람입니다감사합니다정말고 # PASS - 15 chars (at threshold ≤15) | "I am Korean, thank you so much"
+한국사람입니다감사합니다정말고마워요 # FAIL - 20 chars (at threshold ≤15) | "I am Korean, thank you so much"
+
+# Chinese (CJK) tests - threshold: >4 characters triggers ban
+改变人生 # PASS - 4 chars (within ≤4) | "Change life"
+做主改变人生你 # PASS - 7 chars (at threshold ≤4) | "Be master, change your life"
