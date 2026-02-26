@@ -18,6 +18,7 @@ export interface BanLogData {
   chat: Chat;
   ruleName: string;
   triggerWord: string;
+  isEdit?: boolean;
 }
 
 /**
@@ -74,7 +75,8 @@ export const logBan = (data: BanLogData): void => {
   const triggerWord = data.triggerWord;
 
   const logFile = getLogFilePath(data.chat);
-  const logLine = `${timestamp} ${firstName} ${lastName} ${username} ${userId} ${ruleName} ${triggerWord}\n`;
+  const editMarker = data.isEdit ? " [edit]" : "";
+  const logLine = `${timestamp} ${firstName} ${lastName} ${username} ${userId} ${ruleName} ${triggerWord}${editMarker}\n`;
 
   try {
     appendFileSync(logFile, logLine);

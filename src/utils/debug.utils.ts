@@ -4,7 +4,7 @@ export const debugLog = (ctx: Context): void => {
   if (process.env.NODE_ENV !== "production") {
     const chat = ctx.chat;
     const from = ctx.from;
-    const message = ctx.message;
+    const message = ctx.msg;
     console.log({
       chatType: chat?.type,
       chatId: chat?.id,
@@ -14,6 +14,7 @@ export const debugLog = (ctx: Context): void => {
       userName: from?.first_name,
       messageText: message?.text,
       messageId: message?.message_id,
+      isEdit: !!ctx.editedMessage,
     });
   }
 }

@@ -13,6 +13,7 @@ export interface ValidationResult {
   reason?: string;
   ruleName?: string;
   triggerWord?: string;
+  isEdit?: boolean;
 }
 
 /**

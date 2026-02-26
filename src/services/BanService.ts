@@ -50,6 +50,7 @@ export const banUserAndDeleteMessages = async (
         chat: chat,
         ruleName: validation.ruleName,
         triggerWord: validation.triggerWord,
+        isEdit: validation.isEdit,
       });
     }
   } catch (error) {
