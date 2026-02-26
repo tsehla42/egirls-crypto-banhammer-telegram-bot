@@ -8,4 +8,4 @@ mkdir -p logs data
 sudo chown -R 1000:1000 logs data
 
 # Start with the new image (--force-recreate ensures container is rebuilt)
-COMPOSE_PROJECT_NAME=egirls-banhammer-bot docker compose up -d --build --force-recreate --no-deps
+COMPOSE_PROJECT_NAME=$PROJECT docker compose up -d --build --force-recreate --no-deps
