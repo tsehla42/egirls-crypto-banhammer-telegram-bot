@@ -1,13 +1,6 @@
-import { Bot, Context } from "grammy";
-import { API_KEY, ID_VIOLATIONS_LOG_CHANNEL } from "./config";
-import { validateMessage } from "./validators";
-import {
-  banUserAndDeleteMessages,
-  replyToViolatingMessage,
-  forwardViolatingMessage,
-  handleBotChatMemberUpdate,
-} from "./services";
-import { debugLog } from "./utils";
+import { Bot } from "grammy";
+import { API_KEY } from "./config";
+import { handleBotChatMemberUpdate, handleMessage } from "./handlers";
 
 const bot = new Bot(API_KEY as string);
 
@@ -16,32 +9,8 @@ bot.catch = (err) => {
 };
 
 bot.on("my_chat_member", (ctx) => handleBotChatMemberUpdate(ctx));
-
-bot.on("message", async (ctx: Context) => {
-  const message = ctx.msg;
-  const chat = ctx.chat;
-  const from = ctx.from;
-
-  debugLog(ctx);
-
-  if (chat?.type === "group" || chat?.type === "supergroup") {
-    // Skip processing for Telegram channel forwarding (user id 777000)
-    // This is a special Telegram service account for channel messages
-    if (from?.id === 777000) {
-      return;
-    }
-
-    const validation = validateMessage(message?.text || "");
-
-    if (!validation.isValid) {
-      await replyToViolatingMessage(ctx, validation);
-      await forwardViolatingMessage(ctx, ID_VIOLATIONS_LOG_CHANNEL);
-      await banUserAndDeleteMessages(ctx, validation);
-
-      return;
-    }
-  }
-});
+bot.on("message", (ctx) => handleMessage(ctx));
+bot.on("edited_message", (ctx) => handleMessage(ctx, true));
 
 const startBot = async () => {
   try {

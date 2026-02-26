@@ -116,34 +116,3 @@ export const getAllChats = (): ChatInfo[] => {
 export const getRegistryPath = (): string => {
   return REGISTRY_FILE;
 };
-
-export const handleBotChatMemberUpdate = (ctx: {
-  chat: Chat;
-  myChatMember: {
-    old_chat_member: { status: string };
-    new_chat_member: { status: string };
-  };
-}): void => {
-  const { chat } = ctx;
-  const oldStatus = ctx.myChatMember.old_chat_member.status;
-  const newStatus = ctx.myChatMember.new_chat_member.status;
-
-  // Bot was added to a chat
-  if (
-    (oldStatus === "left" || oldStatus === "kicked") &&
-    (newStatus === "member" || newStatus === "administrator")
-  ) {
-    registerChat(chat);
-  }
-  // Bot was removed from a chat
-  else if (
-    (oldStatus === "member" || oldStatus === "administrator") &&
-    (newStatus === "left" || newStatus === "kicked")
-  ) {
-    deactivateChat(chat.id);
-  }
-  // Bot was promoted to admin (update chat info)
-  else if (oldStatus === "member" && newStatus === "administrator") {
-    registerChat(chat);
-  }
-};
