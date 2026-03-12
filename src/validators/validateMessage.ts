@@ -14,6 +14,7 @@ export interface ValidationResult {
   ruleName?: string;
   triggerWord?: string;
   isEdit?: boolean;
+  isPattern?: boolean;
 }
 
 /**
@@ -66,9 +67,12 @@ export const validateMessage = (text: string): ValidationResult => {
   if (spamKeyword) {
     return {
       isValid: false,
-      reason: `Message contains spam keyword \`${spamKeyword}\``,
+      reason: spamKeyword.isPattern
+        ? `Message contains spam regex ${spamKeyword.value}`
+        : `Message contains spam keyword ${spamKeyword.value}`,
       ruleName: 'keyword_rule',
-      triggerWord: spamKeyword,
+      triggerWord: spamKeyword.value,
+      isPattern: spamKeyword.isPattern,
     };
   }
 

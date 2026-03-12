@@ -98,6 +98,11 @@ export const formatBanReason = (validation: ValidationResult): string => {
         return `Message contains Greek alphabet symbol in word <code>${escapedWord}</code>`;
       case 'mixed_rule':
         return `Message contains mixed alphabets in word <code>${escapedWord}</code> (character confusion attack)`;
+      case 'keyword_rule':
+        if (validation.isPattern) {
+          return `Message contains spam regex\n<code>${escapedWord}</code>`;
+        }
+        return `Message contains spam keyword <code>${escapedWord}</code>`;
       default:
         // For other rules, just escape the reason and replace backticks
         return escapeHtml(reason).replace(/`([^`]+)`/g, '<code>$1</code>');
