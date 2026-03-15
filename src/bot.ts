@@ -8,7 +8,7 @@ bot.catch = (err) => {
   console.error("[Bot] Error in middleware:", err);
 };
 
-bot.on("my_chat_member", (ctx) => handleBotChatMemberUpdate(ctx));
+bot.on("my_chat_member", async (ctx) => await handleBotChatMemberUpdate(ctx));
 bot.on("message", (ctx) => handleMessage(ctx));
 bot.on("edited_message", (ctx) => handleMessage(ctx, true));
 
