@@ -1,5 +1,5 @@
 import { Context } from "grammy";
-import { ID_VIOLATIONS_LOG_CHANNEL } from "../config";
+import { ID_VIOLATIONS_LOG_CHANNEL, WHITELISTED_CHAT_IDS } from "../config";
 import { validateMessage } from "../validators";
 import {
   banUserAndDeleteMessages,
@@ -21,7 +21,13 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
 
   debugLog(ctx);
 
+  // Skip processing if the message is not from a group or supergroup chat
   if (chat?.type !== "group" && chat?.type !== "supergroup") {
+    return;
+  }
+
+  // Skip processing for whitelisted chats
+  if (chat?.id !== undefined && WHITELISTED_CHAT_IDS.includes(chat.id)) {
     return;
   }
 
