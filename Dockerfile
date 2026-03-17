@@ -17,6 +17,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY src ./src
+COPY scripts ./scripts
 RUN npm run compile
 
 ########## Runtime Stage ##########
@@ -30,6 +31,8 @@ COPY --from=build /usr/src/app/package.json ./
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY references ./references
+COPY scripts ./scripts
+COPY tsconfig.json ./
 
 # Create necessary directories and set permissions for node user
 RUN mkdir -p logs data && chown -R node:node logs data
