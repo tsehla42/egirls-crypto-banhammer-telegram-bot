@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Script to extract spam keywords that are NOT caught by Greek or Mixed Alphabet rules
+ * Script to extract spam keywords that are NOT caught by Mixed Alphabet or Greek rules
  */
 
 import * as fs from 'fs';
@@ -100,7 +100,7 @@ function analyzeSpamMessages(): AnalysisResult {
     } else if (hasMixed || hasInvisible) {
       result.mixedRule++;
     } else {
-      // This message is NOT caught by Greek or Mixed rules
+      // This message is NOT caught by Mixed or Greek rules
       // It needs keyword-based filtering
       result.keywordOnly++;
       keywordSet.add(message);

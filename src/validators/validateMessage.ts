@@ -31,6 +31,16 @@ export const validateMessage = (text: string): ValidationResult => {
     };
   }
 
+  const spamKeyword = findSpamKeyword(text);
+  if (spamKeyword) {
+    return {
+      isValid: false,
+      ruleName: 'keyword_rule',
+      triggerWord: spamKeyword.value,
+      isPattern: spamKeyword.isPattern,
+    };
+  }
+
   const greekMatch = findGreek(text);
   if (greekMatch) {
     return {
@@ -55,16 +65,6 @@ export const validateMessage = (text: string): ValidationResult => {
       isValid: false,
       ruleName: 'chinese_rule',
       triggerWord: `${chineseCount}_chinese_chars`,
-    };
-  }
-
-  const spamKeyword = findSpamKeyword(text);
-  if (spamKeyword) {
-    return {
-      isValid: false,
-      ruleName: 'keyword_rule',
-      triggerWord: spamKeyword.value,
-      isPattern: spamKeyword.isPattern,
     };
   }
 
