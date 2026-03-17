@@ -17,7 +17,6 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY src ./src
-COPY scripts ./scripts
 RUN npm run compile
 
 ########## Runtime Stage ##########
