@@ -78,37 +78,38 @@ const escapeHtml = (text: string): string => {
     .replace(/>/g, '&gt;');
 };
 
-/**
- * Format ban reason for HTML output in Telegram
- * Replaces markdown backticks with HTML <code> tags
- */
-export const formatBanReason = (validation: ValidationResult): string => {
-  const { ruleName, triggerWord, reason } = validation;
-  
-  if (!reason) {
-    return "Unknown reason";
+const buildBanReason = (validation: ValidationResult, wrap: (word: string) => string): string => {
+  const { ruleName, triggerWord } = validation;
+
+  if (!triggerWord) {
+    return 'Unknown reason';
   }
 
-  // If we have the trigger word, format it properly with HTML
-  if (triggerWord) {
-    const escapedWord = escapeHtml(triggerWord);
-    
-    switch (ruleName) {
-      case 'greek_rule':
-        return `Message contains Greek alphabet symbol in word <code>${escapedWord}</code>`;
-      case 'mixed_rule':
-        return `Message contains mixed alphabets in word <code>${escapedWord}</code> (character confusion attack)`;
-      case 'keyword_rule':
-        if (validation.isPattern) {
-          return `Message contains spam regex\n<code>${escapedWord}</code>`;
-        }
-        return `Message contains spam keyword <code>${escapedWord}</code>`;
-      default:
-        // For other rules, just escape the reason and replace backticks
-        return escapeHtml(reason).replace(/`([^`]+)`/g, '<code>$1</code>');
+  switch (ruleName) {
+    case 'mixed_rule':
+      return `Message contains mixed alphabets in word ${wrap(triggerWord)} (character confusion attack)`;
+    case 'keyword_rule':
+      if (validation.isPattern) {
+        return `Message contains spam regex ${wrap(triggerWord)}`;
+      }
+      return `Message contains spam keyword ${wrap(triggerWord)}`;
+    case 'greek_rule':
+      return `Message contains Greek alphabet symbol in word ${wrap(triggerWord)}`;
+    case 'korean_rule': {
+      const count = triggerWord.split('_')[0];
+      return `Message contains ${count} Korean characters (threshold: 15)`;
     }
+    case 'chinese_rule': {
+      const count = triggerWord.split('_')[0];
+      return `Message contains ${count} Chinese characters`;
+    }
+    default:
+      return `Unknown reason: ${wrap(triggerWord)}`;
   }
-
-  // Fallback: escape HTML and convert markdown backticks to HTML code tags
-  return escapeHtml(reason).replace(/`([^`]+)`/g, '<code>$1</code>');
 };
+
+export const formatBanReason = (validation: ValidationResult): string =>
+  buildBanReason(validation, (word) => `<code>${escapeHtml(word)}</code>`);
+
+export const formatBanReasonPlain = (validation: ValidationResult): string =>
+  buildBanReason(validation, (word) => `"${word}"`);

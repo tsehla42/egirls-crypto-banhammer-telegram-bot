@@ -1,6 +1,7 @@
 import { Context } from "grammy";
 import { logBan } from "./LogService";
 import { type ValidationResult } from "../validators";
+import { formatBanReasonPlain } from "../utils";
 
 /**
  * Ban user, delete their violating message, and log the event
@@ -23,7 +24,7 @@ export const banUserAndDeleteMessages = async (
 
   try {
     console.log(
-      `[BanService] Banning user ${from.id} with reason: "${validation.reason}".`
+      `[BanService] Banning user ${from.id} with reason: "${formatBanReasonPlain(validation)}".`
     );
 
     if (message?.message_id) {

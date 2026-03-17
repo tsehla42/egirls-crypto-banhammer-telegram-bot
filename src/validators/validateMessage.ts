@@ -10,7 +10,6 @@ import { findSpamKeyword } from './keywordRule';
 
 export interface ValidationResult {
   isValid: boolean;
-  reason?: string;
   ruleName?: string;
   triggerWord?: string;
   isEdit?: boolean;
@@ -27,7 +26,6 @@ export const validateMessage = (text: string): ValidationResult => {
   if (mixedWord) {
     return {
       isValid: false,
-      reason: `Message contains mixed alphabets in word \`${mixedWord}\` (character confusion attack)`,
       ruleName: 'mixed_rule',
       triggerWord: mixedWord,
     };
@@ -37,7 +35,6 @@ export const validateMessage = (text: string): ValidationResult => {
   if (greekMatch) {
     return {
       isValid: false,
-      reason: `Message contains Greek alphabet symbol \`${greekMatch.symbol}\` in a word \`${greekMatch.word}\``,
       ruleName: 'greek_rule',
       triggerWord: greekMatch.word,
     };
@@ -47,7 +44,6 @@ export const validateMessage = (text: string): ValidationResult => {
   if (koreanCount !== null) {
     return {
       isValid: false,
-      reason: `Message contains ${koreanCount} Korean characters (threshold: 15)`,
       ruleName: 'korean_rule',
       triggerWord: `${koreanCount}_korean_chars`,
     };
@@ -57,7 +53,6 @@ export const validateMessage = (text: string): ValidationResult => {
   if (chineseCount !== null) {
     return {
       isValid: false,
-      reason: `Message contains ${chineseCount} Chinese characters`,
       ruleName: 'chinese_rule',
       triggerWord: `${chineseCount}_chinese_chars`,
     };
@@ -67,9 +62,6 @@ export const validateMessage = (text: string): ValidationResult => {
   if (spamKeyword) {
     return {
       isValid: false,
-      reason: spamKeyword.isPattern
-        ? `Message contains spam regex ${spamKeyword.value}`
-        : `Message contains spam keyword ${spamKeyword.value}`,
       ruleName: 'keyword_rule',
       triggerWord: spamKeyword.value,
       isPattern: spamKeyword.isPattern,
