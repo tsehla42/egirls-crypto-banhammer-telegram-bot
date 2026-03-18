@@ -5,6 +5,7 @@ import {
   banUserAndDeleteMessages,
   replyToViolatingMessage,
   forwardViolatingMessage,
+  isBotAllowedToBan,
 } from "../services";
 import { debugLog } from "../utils";
 
@@ -21,21 +22,17 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
 
   debugLog(ctx);
 
-  // Skip processing if the message is not from a group or supergroup chat
-  if (chat?.type !== "group" && chat?.type !== "supergroup") {
-    return;
-  }
+  const isGroupChat = chat?.type === "group" || chat?.type === "supergroup";
+  const isWhitelisted = chat?.id !== undefined && WHITELISTED_CHAT_IDS.includes(chat.id);
+  const isTelegramChannelForward = from?.id === 777000;
 
-  // Skip processing for whitelisted chats
-  if (chat?.id !== undefined && WHITELISTED_CHAT_IDS.includes(chat.id)) {
-    return;
-  }
+  if (!isGroupChat) return;
 
-  // Skip processing for Telegram channel forwarding (user id 777000)
-  // This is a special Telegram service account for channel messages
-  if (from?.id === 777000) {
-    return;
-  }
+  if (isWhitelisted) return;
+
+  if (isTelegramChannelForward) return;
+
+  if (!(await isBotAllowedToBan(ctx, chat!.id))) return;
 
   const validation = validateMessage(message?.text || message?.caption || "");
 

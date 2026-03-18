@@ -63,10 +63,8 @@ const getBotStatusInChat = async (api: Api, chatId: number): Promise<GroupInfo |
     const botInfo = await api.getMe();
     const botMember = await api.getChatMember(chatId, botInfo.id);
 
-    const isAdmin = botMember.status === "administrator" || botMember.status === "creator";
-    const canBanUsers = isAdmin &&
-      (botMember.status === "creator" ||
-        (botMember.status === "administrator" && botMember.can_restrict_members === true));
+    const isAdmin = botMember.status === "administrator";
+    const canBanUsers = isAdmin && botMember.can_restrict_members === true;
 
     return {
       chatId,

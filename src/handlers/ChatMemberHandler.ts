@@ -1,5 +1,5 @@
 import { Context } from "grammy";
-import { registerChat, deactivateChat } from "../services";
+import { registerChat, deactivateChat, updateBotPermissionCache } from "../services";
 
 /**
  * Handles my_chat_member events to keep the chat registry up to date,
@@ -19,10 +19,18 @@ export const handleBotChatMemberUpdate = async (ctx: Context): Promise<void> => 
     (oldStatus === "member" || oldStatus === "administrator") &&
     (newStatus === "left" || newStatus === "kicked");
 
-  const botPromoted = oldStatus === "member" && newStatus === "administrator";
+  const botAdminStatusChanged =
+    (oldStatus === "member" && newStatus === "administrator") ||
+    (oldStatus === "administrator" && newStatus === "administrator");
+
+  const getBotBanPermissionFromUpdate = (): boolean => {
+    const newMember = ctx.myChatMember!.new_chat_member;
+    return newMember.status === "administrator" && newMember.can_restrict_members === true;
+  };
 
   if (botAdded) {
     registerChat(chat);
+    updateBotPermissionCache(chat.id, getBotBanPermissionFromUpdate());
 
     try {
       await ctx.reply(
@@ -41,7 +49,9 @@ export const handleBotChatMemberUpdate = async (ctx: Context): Promise<void> => 
     }
   } else if (botRemoved) {
     deactivateChat(chat.id);
-  } else if (botPromoted) {
+    updateBotPermissionCache(chat.id, false);
+  } else if (botAdminStatusChanged) {
     registerChat(chat);
+    updateBotPermissionCache(chat.id, getBotBanPermissionFromUpdate());
   }
 };

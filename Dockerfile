@@ -31,6 +31,8 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY references ./references
 COPY scripts ./scripts
+COPY src/config.ts ./src/config.ts
+COPY src/services/ChatRegistryService.ts ./src/services/ChatRegistryService.ts
 COPY tsconfig.json ./
 
 # Create necessary directories and set permissions for node user
