@@ -6,6 +6,7 @@ import {
   replyToViolatingMessage,
   forwardViolatingMessage,
   isBotAllowedToBan,
+  isUserAdmin,
 } from "../services";
 import { debugLog } from "../utils";
 
@@ -25,6 +26,8 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
   const isGroupChat = chat?.type === "group" || chat?.type === "supergroup";
   const isWhitelisted = chat?.id !== undefined && WHITELISTED_CHAT_IDS.includes(chat.id);
   const isTelegramChannelForward = from?.id === 777000;
+  const senderChatId = ctx.msg?.sender_chat?.id;
+  const isAnonymousAdmin = senderChatId !== undefined && senderChatId === chat?.id;
 
   if (!isGroupChat) return;
 
@@ -32,7 +35,11 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
 
   if (isTelegramChannelForward) return;
 
+  if (isAnonymousAdmin) return;
+
   if (!(await isBotAllowedToBan(ctx, chat!.id))) return;
+
+  if (from?.id && (await isUserAdmin(ctx, chat!.id, from.id))) return;
 
   const validation = validateMessage(message?.text || message?.caption || "");
 
