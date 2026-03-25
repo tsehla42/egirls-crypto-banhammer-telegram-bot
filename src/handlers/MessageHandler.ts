@@ -7,6 +7,7 @@ import {
   forwardViolatingMessage,
   isBotAllowedToBan,
   isUserAdmin,
+  getLinkedChannelId,
 } from "../services";
 import { debugLog } from "../utils";
 
@@ -40,6 +41,13 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
   if (!(await isBotAllowedToBan(ctx, chat!.id))) return;
 
   if (from?.id && (await isUserAdmin(ctx, chat!.id, from.id))) return;
+
+  // Channel_Bot (id 136817688) is the system sender Telegram uses when a user posts
+  // as a channel. Only skip if sender_chat matches the group's actual linked channel.
+  if (from?.id === 136817688 && senderChatId !== undefined) {
+    const linkedChannelId = await getLinkedChannelId(ctx, chat!.id);
+    if (linkedChannelId !== null && senderChatId === linkedChannelId) return;
+  }
 
   const validation = validateMessage(message?.text || message?.caption || "");
 
