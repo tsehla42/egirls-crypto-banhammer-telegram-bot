@@ -44,7 +44,6 @@ export const banUserAndDeleteMessages = async (
       return;
     }
 
-    // Log the ban event
     if (validation.ruleName && validation.triggerWord) {
       logBan({
         user: from,

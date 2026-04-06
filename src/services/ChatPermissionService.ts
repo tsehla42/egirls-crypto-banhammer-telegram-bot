@@ -1,20 +1,11 @@
 import { Context } from "grammy";
 
-/**
- * Cache bot ban permission per chat to avoid an API call on every message.
- */
 const permissionCache = new Map<number, { canBan: boolean; cachedAt: number }>();
 const CACHE_TTL_MS = 25 * 60 * 1000; // 25 minutes
 
-/**
- * Cache user admin status per chat:user pair to avoid an API call on every message.
- */
 const adminCache = new Map<string, { isAdmin: boolean; cachedAt: number }>();
 const ADMIN_CACHE_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-/**
- * Cache linked channel ID per group. 240 hours TTL — changes almost never.
- */
 const linkedChannelCache = new Map<number, { linkedChatId: number | null; cachedAt: number }>();
 const LINKED_CHANNEL_CACHE_TTL_MS = 240 * 60 * 60 * 1000; // 240 hours
 

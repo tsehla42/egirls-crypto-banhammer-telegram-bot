@@ -1,8 +1,3 @@
-/**
- * Validators barrel export
- * Exports all moderation validators and related utilities
- */
-
 export { findMixedAlphabetWord } from './mixedAlphabetRule';
 export { findGreek } from './greekRule';
 export { findKorean } from './koreanRule';
