@@ -13,7 +13,8 @@ dist/
 
 # Ban logs
 logs/
-pull-data.sh
+scripts/shell/pull-data.sh
+scripts/shell/deploy.sh
 
 # Data files
 data/chat-registry.json
@@ -21,4 +22,15 @@ data/chat-registry.json
 # Source files
 references/result.json
 
+# Gitignore all docs by default
+docs/*
+
+# Whitelist: explicitly tracked documentation
+!docs/README.md
+!docs/architecture/
+!docs/configuration/
+!docs/services/
+!docs/validators/
+
+# Keep deploy.md ignored (private deployment notes)
 docs/deployment/deploy.md

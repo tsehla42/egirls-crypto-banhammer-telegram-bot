@@ -96,6 +96,29 @@ npm run list-groups
 npm run unban-test-user
 ```
 
+### Bot Management Scripts
+
+Use `./bot.sh` for a menu interface to common operations:
+
+```bash
+# Show menu
+./bot.sh
+
+# Run specific scripts
+./bot.sh deploy       # Fetch + reset, then run update script
+./bot.sh update       # Git pull, run compose script
+./bot.sh compose      # Build image and restart container
+./bot.sh pull-data    # Pull data from production server
+./bot.sh run-local    # Run bot locally with npm
+```
+
+Scripts are located in `scripts/shell/`:
+- `compose.sh` — Build and restart Docker container
+- `update.sh` — Pull changes and rebuild
+- `deploy.sh` — Deploy to production server (gitignored)
+- `pull-data.sh` — Pull data from production (gitignored)
+- `run-local.sh` — Run bot locally with npm
+
 ## Development
 
 ### Local Development
@@ -131,9 +154,9 @@ Output goes to `dist/` directory.
 ```
 project/
 ├── .env                    # Environment variables (gitignored)
+├── bot.sh                  # Menu interface for scripts
 ├── docker-compose.yml      # Container configuration
 ├── Dockerfile              # Multi-stage build
-├── compose.sh              # Convenience rebuild script
 ├── src/                    # TypeScript source
 ├── dist/                   # Compiled JavaScript (generated)
 ├── references/             # Spam keywords and patterns
@@ -144,6 +167,12 @@ project/
 ├── data/                   # Persistent data (created at runtime)
 │   └── chat-registry.json
 └── scripts/                # Utility scripts
+    ├── shell/              # Shell scripts for bot management
+    │   ├── compose.sh
+    │   ├── update.sh
+    │   ├── deploy.sh       # gitignored
+    │   ├── pull-data.sh    # gitignored
+    │   └── run-local.sh
     ├── list-bot-groups.ts
     ├── unban-test-user.ts
     └── extract-keyword-spam.ts

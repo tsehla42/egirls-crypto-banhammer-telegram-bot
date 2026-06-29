@@ -13,7 +13,7 @@ Telegram bot for moderating group chats against spam accounts. Written in TypeSc
 - [Architecture](docs/architecture/) — Directory structure, message flow, skip logic, caching
 - [Validators](docs/validators/) — All 5 rules, algorithms, thresholds, how to add new rules
 - [Services](docs/services/) — Ban, reply, forwarding, logging, permissions, chat registry
-- [Deployment](docs/deployment/) — Dockerfile, docker-compose, commands
+- [Deployment](docs/deployment/) — Dockerfile, docker-compose, bot.sh commands
 - [Configuration](docs/configuration/) — Environment variables, spam data files, log format
 
 ## Code Conventions

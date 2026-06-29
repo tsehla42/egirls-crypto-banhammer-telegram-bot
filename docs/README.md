@@ -204,6 +204,12 @@ ChatMemberHandler.handleBotChatMemberUpdate()
 Multi-stage Docker build. See [Deployment](deployment/) for details.
 
 ```bash
+# Using bot.sh (recommended)
+./bot.sh compose    # Build and restart container
+./bot.sh update     # Pull changes and rebuild
+./bot.sh deploy     # Deploy to production server
+
+# Manual
 docker compose up --build -d   # Build and start
 docker compose logs -f         # Watch logs
 ```
