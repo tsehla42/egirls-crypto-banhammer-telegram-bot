@@ -24,8 +24,8 @@ function loadSpamKeywords(): string[] {
     const keywordsPath = path.join(__dirname, '../../references/spam-keywords.json');
     const content = fs.readFileSync(keywordsPath, 'utf-8');
     const keywords = JSON.parse(content) as string[];
-    cachedKeywords = keywords;
-    return keywords;
+    cachedKeywords = keywords.map(k => k.normalize('NFC'));
+    return cachedKeywords;
   } catch (error) {
     console.error('Failed to load spam keywords:', error);
     cachedKeywords = [];
@@ -62,13 +62,14 @@ export interface SpamMatch {
 
 /**
  * Check if message contains any predefined spam keywords or matches a regex pattern
+ * Text is NFC-normalized before comparison to prevent composed/decomposed mismatches
  * Substring matching is case-insensitive; patterns use the 'i' flag
  * @param text - Message text to validate
  * @returns SpamMatch with the matched value and whether it was a regex pattern, or null
  */
 export const findSpamKeyword = (text: string): SpamMatch | null => {
   const keywords = loadSpamKeywords();
-  const lowerText = text.toLowerCase();
+  const lowerText = text.normalize('NFC').toLowerCase();
 
   for (const keyword of keywords) {
     if (!keyword) continue;
