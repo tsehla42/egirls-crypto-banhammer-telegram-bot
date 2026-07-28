@@ -12,8 +12,9 @@ import { getAlphabetType } from './alphabetUtils';
  * @returns The problematic word if detected, null otherwise
  */
 export const findMixedAlphabetWord = (text: string): string | null => {
-  // Split text into words, keeping only letters
-  const words = text.match(/[a-zA-Zа-яА-ЯіїєґІЇЄҐ]+/g) || [];
+  // Split text into words by whitespace — non-alphabet characters (emoji, punctuation,
+  // digits, Greek, CJK, etc.) are ignored by getAlphabetType during counting
+  const words = text.split(/\s+/);
 
   for (const word of words) {
     // Count occurrences of each alphabet type

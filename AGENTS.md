@@ -30,6 +30,13 @@ Telegram bot for moderating group chats against spam accounts. Written in TypeSc
 - Do not commit changes without user approval
 - Do not modify `spam-keywords.json` or `spam-patterns.json` without understanding the impact — these directly control who gets banned
 
+## Operations
+
+- Pull bot logs from prod: `./bot.sh pull-logs`
+- Run tests: `npm test`
+
+**Deploy timing:** `./bot.sh deploy` runs remotely and can take several minutes. Run it and return without waiting for it to finish — the script handles everything internally.
+
 ## Notes for Tools
 
 - Use context7 to get info about grammY and Telegram Bot API

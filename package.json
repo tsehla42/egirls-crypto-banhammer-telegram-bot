@@ -13,13 +13,16 @@
     "compose": "compose.sh",
     "clean-messages": "npx ts-node references/clean-messages.ts",
     "list-groups": "npx ts-node scripts/list-bot-groups.ts",
-    "unban-test-user": "npx ts-node scripts/unban-test-user.ts"
+    "unban-test-user": "npx ts-node scripts/unban-test-user.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.11",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
