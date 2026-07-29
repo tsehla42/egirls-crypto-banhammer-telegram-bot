@@ -1,6 +1,6 @@
 import { Bot } from "grammy";
 import { API_KEY } from "./config";
-import { handleBotChatMemberUpdate, handleMessage } from "./handlers";
+import { handleBotChatMemberUpdate, handleBanCommand, handleMessage } from "./handlers";
 
 const bot = new Bot(API_KEY as string);
 
@@ -8,6 +8,7 @@ bot.catch = (err) => {
   console.error("[Bot] Error in middleware:", err);
 };
 
+bot.command("ban", handleBanCommand);
 bot.on("my_chat_member", async (ctx) => await handleBotChatMemberUpdate(ctx));
 bot.on("message", (ctx) => handleMessage(ctx));
 bot.on("edited_message", (ctx) => handleMessage(ctx, true));

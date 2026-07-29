@@ -17,3 +17,11 @@ export const WHITELISTED_CHAT_IDS: number[] = env
   .split(",")
   .filter(Boolean)
   .map(Number);
+
+export const BOT_ADMIN_IDS: number[] = env
+  .get("BOT_ADMIN_IDS")
+  .default("")
+  .asString()
+  .split(",")
+  .filter(Boolean)
+  .map(Number);

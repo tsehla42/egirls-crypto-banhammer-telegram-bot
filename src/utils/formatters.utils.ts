@@ -47,6 +47,22 @@ export const formatUserIdentifier = (from?: User): string => {
   return `User ID ${from.id} (no other identifier available)`;
 };
 
+export const formatChatIdentifier = (chat?: Chat): string => {
+  if (!chat) {
+    return "Unknown chat";
+  }
+
+  if ("title" in chat && chat.title) {
+    return chat.title;
+  }
+
+  if ("username" in chat && chat.username) {
+    return `@${chat.username}`;
+  }
+
+  return `Chat ID ${chat.id}`;
+};
+
 /**
  * Get chat username from Chat object
  * Chat username is available on supergroups and channels
@@ -71,7 +87,7 @@ export const getChatTitle = (chat: Chat): string | undefined => {
 /**
  * Escape HTML special characters to prevent injection
  */
-const escapeHtml = (text: string): string => {
+export const escapeHtml = (text: string): string => {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

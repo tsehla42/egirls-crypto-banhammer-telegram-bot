@@ -18,6 +18,7 @@ Bot monitors a Telegram group chat (linked to a channel for comments). Each new 
 
 ### bot.ts
 Entry point. Creates grammY `Bot` instance, registers handlers, starts polling.
+- `ban` command → `handleBanCommand(ctx)` (registered before message handler)
 - `message` event → `handleMessage(ctx)`
 - `edited_message` event → `handleMessage(ctx, true)`
 - `my_chat_member` event → `handleBotChatMemberUpdate(ctx)`
@@ -29,6 +30,7 @@ Loads environment variables via `dotenv` + `env-var`. Exports:
 - `CHAT_ID` — Target group chat ID (required)
 - `ID_VIOLATIONS_LOG_CHANNEL` — Channel for forwarding violating messages (required)
 - `WHITELISTED_CHAT_IDS` — Comma-separated chat IDs exempt from moderation (optional)
+- `BOT_ADMIN_IDS` — Comma-separated user/channel IDs with bot-wide admin privileges (optional)
 
 ### constants.ts
 Telegram system account IDs:
@@ -41,6 +43,23 @@ Main message handler. Orchestrates the validation pipeline:
 2. `shouldSkipMessage(ctx)` — Check all skip conditions
 3. `validateMessage(text)` — Run all moderation rules
 4. On violation: `replyToViolatingMessage` → `forwardViolatingMessage` → `banUserAndDeleteMessages`
+
+### handlers/BanCommandHandler.ts
+Handles `/ban` command for manual bans by admins. Flow:
+1. Check it's a group/supergroup chat
+2. Check message is a reply to another message
+3. Check sender is authorized (bot admin from BOT_ADMIN_IDS or chat admin)
+4. Check bot has ban permission
+5. Check target is not protected (bot, owner, admin, linked channel, group itself)
+6. Ban target user
+7. Delete /ban command message and target message
+8. Reply with ban confirmation (unless silent mode)
+9. Forward target message to log channel
+10. Log ban event
+
+Flags: `/ban s` or `/ban silent` — bans without posting confirmation reply.
+Authorization: User is authorized if their user ID or channel ID is in `BOT_ADMIN_IDS`, OR if they are a chat administrator/creator.
+Protected targets: Telegram channel bot (777000), linked channel, group itself, bot itself, chat owner, chat admins.
 
 ### handlers/ChatMemberHandler.ts
 Handles `my_chat_member` updates:
@@ -128,13 +147,25 @@ Logs ban events to per-chat log files in `logs/` directory. Filename format: `{u
 2026-01-31T12:00:00.000Z John Doe @johndoe 1234567890 greek_rule σκύλος
 ```
 
+### utils/ban.utils.ts
+Shared ban utilities:
+- `deleteMessage(api, chatId, messageId)` — Delete message, ignoring errors
+- `forwardMessageToChannel(api, target, source, messageId)` — Forward message to channel
+- `resolveTargetFromReply(replyTo)` — Get user/chat from reply_to_message
+- `resolveTargetName(replyTo)` — Display name from reply_to_message
+- `resolveLogUser(replyTo, targetId)` — User object for logging
+- `isKnownBanFailure(error)` — Check for self/owner/admin ban errors
+- `parseBanFlags(text)` — Parse `/ban s` or `/ban silent` flags
+
 ### utils/formatters.utils.ts
 Formatting utilities:
 - `formatValue` — Display value or "-" for missing
 - `formatUsername` — Add @ prefix or "-"
 - `formatUserIdentifier` — Best human-readable name from User object
+- `formatChatIdentifier` — Best human-readable name from Chat object
 - `getChatUsername` / `getChatTitle` — Extract from Chat object
 - `formatBanReason` / `formatBanReasonPlain` — Format ban reason for HTML reply or plain text log
+- `escapeHtml` — Escape HTML special characters for safe Telegram messages
 
 ### utils/debug.utils.ts
 Debug logging helper. In non-production, logs chat/user/message details to console.
