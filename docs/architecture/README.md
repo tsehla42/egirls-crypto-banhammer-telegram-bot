@@ -6,7 +6,7 @@ Project structure and message processing flow.
 
 ```
 src/
-  bot.ts                        # Entry point — registers handlers, starts polling
+  bot.ts                        # Entry point — registers handlers, starts polling, auto-retry, error handling
   config.ts                     # Environment variable loading (dotenv + env-var)
   constants.ts                  # Telegram system account IDs
   handlers/
@@ -51,8 +51,8 @@ references/
 4. shouldSkipMessage(ctx) — see Skip Logic below
 5. validateMessage(text) — see Validators below
 6. If invalid:
-   a. replyToViolatingMessage(ctx, validation)
-   b. forwardViolatingMessage(ctx, logChannelId)
+   a. replyToViolatingMessage(ctx, validation)  ┐ parallel
+   b. forwardViolatingMessage(ctx, logChannelId) ┘ via Promise.all
    c. banUserAndDeleteMessages(ctx, validation)
       - deleteMessage(chatId, messageId)
       - banChatMember(chatId, userId)

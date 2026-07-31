@@ -4,15 +4,14 @@ Stateless service modules that handle bot actions after validation. All services
 
 ## Overview
 
-When a message fails validation, the following services are called in order:
+When a message fails validation, the following services are called:
 
 ```
 Violation detected
     |
-    +-- ReplyService.replyToViolatingMessage()
-    |   Reply to message with ban reason
-    |
-    +-- ForwardingService.forwardViolatingMessage()
+    +-- ReplyService.replyToViolatingMessage()  ┐
+    |   Reply to message with ban reason        | parallel (Promise.all)
+    +-- ForwardingService.forwardViolatingMessage() ┘
     |   Forward violating message to log channel
     |
     +-- BanService.banUserAndDeleteMessages()

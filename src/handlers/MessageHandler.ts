@@ -26,8 +26,14 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
 
   if (!validation.isValid) {
     validation.isEdit = isEdit;
-    await replyToViolatingMessage(ctx, validation);
-    await forwardViolatingMessage(ctx, ID_VIOLATIONS_LOG_CHANNEL);
+
+    // Reply and forward are independent — run in parallel
+    await Promise.all([
+      replyToViolatingMessage(ctx, validation),
+      forwardViolatingMessage(ctx, ID_VIOLATIONS_LOG_CHANNEL),
+    ]);
+
+    // Ban+delete must happen after forward (message needs to exist for forwarding)
     await banUserAndDeleteMessages(ctx, validation);
   }
 };
