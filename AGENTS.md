@@ -34,6 +34,7 @@ Telegram bot for moderating group chats against spam accounts. Written in TypeSc
 
 - Pull bot logs from prod: `./bot.sh pull-logs`
 - Run tests: `npm test`
+- After adding spam keywords/patterns: increment `version` in `package.json` by 0.0.1, then `npm install` to update the lockfile
 
 **Deploy timing:** `./bot.sh deploy` runs remotely and can take several minutes. Run it and return without waiting for it to finish — the script handles everything internally.
 

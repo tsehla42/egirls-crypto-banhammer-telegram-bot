@@ -103,6 +103,12 @@ Do **not** add:
 - `онлайн` alone — too generic
 - Any word already caught by Mixed Alphabet, Greek, Korean, or Chinese rules
 
+## Post-Add Steps
+
+After adding keywords/patterns, always:
+1. Increment `version` in `package.json` by 0.0.1
+2. Run `npm install` to update the lockfile
+
 ## Quick Reference: Before Submitting
 
 - [ ] Message passes Mixed Alphabet check? (no word mixes 2+ minority-alphabet chars)
