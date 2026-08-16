@@ -48,49 +48,37 @@ Set automatically by Docker (`NODE_ENV=production`). In local development, defau
 
 ## Reference Data Files
 
-### spam-keywords.json
+### spam-rules.ts
 
-**Path:** `references/spam-keywords.json`
+**Path:** `src/spam-rules.ts`
 
-JSON array of banned keyword strings. Matched as case-insensitive substrings against message text.
+TypeScript file exporting categorized regex spam rules. All entries are regex patterns with the `i` flag (case-insensitive).
 
-```json
-[
-  "free crypto",
-  "airdrop now",
-  "join my channel",
-  "earn money fast"
-]
+```typescript
+const CURRENCY = '(?:грн|[$€₽₴])';
+const AMOUNT = `(?:${CURRENCY}\\s*\\d+|\\d+[\\s\\d]*\\s*${CURRENCY})`;
+
+export const spamRules = {
+  earnings: [
+    new RegExp(`${AMOUNT}\\s*(?:в\\s+неделю|/неделя)`, 'i'),
+    // ...
+  ],
+  housing: [/помощь с жиль/i, // ...],
+  crypto: [/claim (?:free|here|it)/i, // ...],
+  contactRequests: [/пиши в лс/i, // ...],
+  jobScam: [/чат менеджер/i, // ...],
+  gambling: [/беттинг/i, // ...],
+  genericSpam: [/solana/i, // ...],
+} as const;
+
+export const allSpamRules: RegExp[] = Object.values(spamRules).flat();
 ```
 
 **Matching behavior:**
-- Case-insensitive (`"FREE CRYPTO"` matches `"free crypto"`)
-- Substring match (`"free crypto today"` matches `"free crypto"`)
-- Empty strings are skipped
-
-### spam-patterns.json
-
-**Path:** `references/spam-patterns.json`
-
-JSON array of regex pattern strings. Compiled with `'i'` flag (case-insensitive).
-
-```json
-[
-  "t\\.me/\\+",
-  "bit\\.ly/",
-  "https?://.*\\.xyz"
-]
-```
-
-**Matching behavior:**
-- Standard JavaScript regex syntax
-- Case-insensitive (via `'i'` flag)
-- Invalid patterns log an error and are skipped
-- Full message text is tested against each pattern
-
-### Caching
-
-Both files are loaded once on first message and cached in module-level variables. The cache lives for the lifetime of the process. **Restart the bot after modifying these files.**
+- All rules are case-insensitive regex
+- Text is NFC-normalized before matching
+- First matching rule wins
+- Rules are imported at startup — restart bot after changes
 
 ## Chat Registry
 

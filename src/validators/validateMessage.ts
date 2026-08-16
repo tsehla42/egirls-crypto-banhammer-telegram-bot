@@ -13,7 +13,6 @@ export interface ValidationResult {
   ruleName?: string;
   triggerWord?: string;
   isEdit?: boolean;
-  isPattern?: boolean;
 }
 
 /**
@@ -37,7 +36,6 @@ export const validateMessage = (text: string): ValidationResult => {
       isValid: false,
       ruleName: 'keyword_rule',
       triggerWord: spamKeyword.value,
-      isPattern: spamKeyword.isPattern,
     };
   }
 

@@ -29,6 +29,7 @@ Telegram bot for moderating group chats against spam accounts. Written in TypeSc
 - Do not create .md files unless explicitly asked
 - Do not commit changes without user approval
 - Do not modify `spam-keywords.json` or `spam-patterns.json` without understanding the impact — these directly control who gets banned
+- Spam rules are now in `src/spam-rules.ts` — all entries must be regex with the `i` flag
 
 ## Operations
 

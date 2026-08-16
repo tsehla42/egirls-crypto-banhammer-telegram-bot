@@ -1,17 +1,17 @@
 ---
 name: telegram-spam-analysis
-description: Use when analyzing new Telegram spam messages for the egirls-crypto-banhammer bot — classifying spam type, deciding keyword vs pattern, and adding entries to spam-keywords.json or spam-patterns.json
+description: Use when analyzing new Telegram spam messages for the egirls-crypto-banhammer bot — classifying spam type and adding regex entries to src/spam-rules.ts
 ---
 
 # Telegram Spam Analysis
 
 ## Overview
 
-Classify new Telegram spam and add the minimum effective entries to `references/spam-keywords.json` or `references/spam-patterns.json`. Only add what earlier rules don't already catch.
+Classify new Telegram spam and add the minimum effective regex entries to `src/spam-rules.ts`. Only add what earlier rules don't already catch.
 
 ## Validation Pipeline (What's Already Filtered)
 
-Check in order. If a message is caught at any step, **do not add a keyword for it**.
+Check in order. If a message is caught at any step, **do not add a rule for it**.
 
 | Rule | Catches |
 |------|---------|
@@ -19,7 +19,7 @@ Check in order. If a message is caught at any step, **do not add a keyword for i
 | Greek | Any Greek Unicode chars (U+0370–U+03FF, U+1F00–U+1FFF) |
 | Korean | >15 Hangul characters |
 | Chinese | >6 CJK characters |
-| Keywords/Patterns | `spam-keywords.json` + `spam-patterns.json` |
+| Spam Rules | `src/spam-rules.ts` — categorized regex patterns |
 
 **Test BEFORE adding:** Does the message slip through all four pre-keyword rules?
 
@@ -29,51 +29,74 @@ Categories observed in the wild. Use this to orient analysis:
 
 ### 1. Crypto / Financial Fraud
 Signals: specific token names, exchange names, ".xyz" domains, "claim" verbs, aspirational millionaire framing
-Keywords: blockchain platforms (`Solana`, `opensea`), action CTAs (`claim free`, `Купить токен`), educational lures (`курс по крипт`, `материалы по крипте`), domain TLDs (`.xyz`)
+Rules: blockchain platforms (`Solana`, `opensea`), action CTAs (`claim (?:free|here|it)`, `купить токен`), educational lures (`курс по крипт`, `материалы по крипте`), domain TLDs (`.xyz`)
 
 ### 2. Job / Recruitment Spam
 Signals: income promises, housing offers, "flexible schedule", "remote", no-verification claims, Bulgarian-language requirements (niche signal for CIS audience)
 Sub-patterns:
-- **Income + housing combo** — offering both salary AND housing is near-certain fraud (`житло надаємо`, `помогаем с жиль`, `проживання за наш рахунок`)
+- **Income + housing combo** — offering both salary AND housing is near-certain fraud (`житло надаємо`, `помощь с жиль`, `проживання за наш рахунок`)
 - **"Not scam" self-defense** — messages saying `не офис, не скам` are always spam
 - **Specific operator names** — recurrent named actors (`Даниил и Сэм`, `vladovaHR`) are worth adding as time-limited signals; note in a comment that they may become stale
 
 ### 3. Redirect Spam
 Signals: "+" as response indicator, DM/profile redirect CTAs
 - DM redirects: `пиши в лс`, `пиши в особист`, `напишет + в лс`, `кому интересно напишите`
-- Profile redirects: `в моем профиле`, `Переходи в мой профиль`
+- Profile redirects: `в моем профиле`, `переходи в мой профиль`
 - Direct-message notation: `ставь + в директ` (the "+" is the response token)
 
 Note: prefer the 2-3 word phrase over single words like `лс` alone.
 
 ### 4. Casino / Betting
 Signals: gambling platform names, free-spin offers, sports analysis framing (cover for tipster scams)
-Keywords: `беттинг`, `букмекера`, `ФРИСПИНЫ`, `casinoua`, `победу подряд`, `футбольных аналитиков`
+Rules: `беттинг`, `букмекер`, `фриспины`, `casinoua`, `победу подряд`, `футбольных аналитиков`
 
 ### 5. Adult Content
 Signals: Ukrainian/Russian explicit terms
-Keywords: `інтимні`, `гарячі відео`
+Rules: `гарячі відео`
 
 ### 6. Currency Symbol Spam (standalone)
 `₽` (Russian ruble symbol) alone is highly effective — appears in spam targeting Ukrainian audience offering Russian-currency income, almost never in legitimate conversation.
 
-## Keyword vs Pattern Decision
+## Adding Rules
 
+All rules are now regex in `src/spam-rules.ts`. No more keyword vs pattern distinction.
+
+### Step 1: Choose the right category
+
+| Category | Use for |
+|----------|---------|
+| `earnings` | Salary, income, payment frequency |
+| `housing` | Accommodation offers |
+| `crypto` | Token claims, crypto courses, wallet schemes |
+| `contactRequests` | DM/profile redirects |
+| `jobScam` | Job offers, recruitment, "not scam" claims |
+| `gambling` | Betting, casino, free spins |
+| `genericSpam` | everything else |
+
+### Step 2: Write the regex
+
+**Use building blocks when matching currency amounts:**
+```typescript
+const CURRENCY = '(?:грн|[$€₽₴])';
+const AMOUNT = `(?:${CURRENCY}\\s*\\d+|\\d+[\\s\\d]*\\s*${CURRENCY})`;
+
+// In earnings category:
+new RegExp(`${AMOUNT}\\s*(?:в\\s+неделю|/неделя)`, 'i'),
 ```
-Is the core identifier fixed text?
-├── YES → keyword (plain string in spam-keywords.json)
-└── NO (variable number, multiple word forms) → pattern (regex in spam-patterns.json)
+
+**For plain text phrases, use inline regex:**
+```typescript
+/pомощь с жиль/i,
+/чат менеджер/i,
 ```
 
-**Use a pattern when:**
-- Amount varies: `250$ в неделю` / `1000$ в неделю` → `(?:\$\d+|\d+\$)\s*в\s+неделю`
-- Word form varies across inflections and you can't stem the last word alone
+**For variable word forms, use alternation:**
+```typescript
+/claim (?:free|here|it)/i,
+/даниил(а)? и сэм(а)?/i,
+```
 
-**Use a keyword when:**
-- Phrase is fixed and distinctive enough as-is
-- 2-4 word phrases are ideal; single words only if extremely distinctive (`беттинг`, `букмекера`)
-
-## Slavic Language Stemming Rules
+### Step 3: Stemming (Slavic languages)
 
 Ukrainian and Russian decline nouns. Strip the inflectional suffix **of the last word only**.
 
@@ -86,6 +109,23 @@ Ukrainian and Russian decline nouns. Strip the inflectional suffix **of the last
 ```
 
 **Rule:** Only stem the last word. All preceding words must be the exact inflected form that appears in spam.
+
+### Step 4: Add to the file
+
+```typescript
+export const spamRules = {
+  earnings: [
+    // ... existing rules ...
+    /your new pattern/i,  // ← add here
+  ],
+  // ...
+} as const;
+```
+
+**Rules:**
+- Every entry MUST have the `i` flag
+- Use `// From spam-patterns.json` or similar comments for provenance when consolidating existing entries
+- Restart bot after changes (rules are imported at startup)
 
 ## False Positive Guards
 
@@ -105,7 +145,7 @@ Do **not** add:
 
 ## Post-Add Steps
 
-After adding keywords/patterns, always:
+After adding rules, always:
 1. Increment `version` in `package.json` by 0.0.1
 2. Run `npm install` to update the lockfile
 
@@ -114,8 +154,9 @@ After adding keywords/patterns, always:
 - [ ] Message passes Mixed Alphabet check? (no word mixes 2+ minority-alphabet chars)
 - [ ] Message passes Greek check? (no Greek characters)
 - [ ] Message passes Korean/Chinese thresholds?
-- [ ] Not already matched by existing keyword or pattern?
+- [ ] Not already matched by existing rules in `src/spam-rules.ts`?
 - [ ] Phrase is 2–4 words (or single word that's a very distinctive spam term)?
 - [ ] Last word only is stemmed (if Slavic inflected phrase)?
 - [ ] Not a false positive in normal Ukrainian/Russian conversation?
-- [ ] Pattern uses `\\d+`, `\\s*`, and `\\$` escaping (if regex)?
+- [ ] Regex has the `i` flag?
+- [ ] Added to the correct category in `spamRules`?

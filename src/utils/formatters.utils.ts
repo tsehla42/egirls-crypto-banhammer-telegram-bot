@@ -105,10 +105,7 @@ const buildBanReason = (validation: ValidationResult, wrap: (word: string) => st
     case 'mixed_rule':
       return `Message contains mixed alphabets in word ${wrap(triggerWord)} (character confusion attack)`;
     case 'keyword_rule':
-      if (validation.isPattern) {
-        return `Message contains spam regex ${wrap(triggerWord)}`;
-      }
-      return `Message contains spam keyword ${wrap(triggerWord)}`;
+      return `Message contains spam regex ${wrap(triggerWord)}`;
     case 'greek_rule':
       return `Message contains Greek alphabet symbol in word ${wrap(triggerWord)}`;
     case 'korean_rule': {

@@ -9,6 +9,7 @@ src/
   bot.ts                        # Entry point — registers handlers, starts polling, auto-retry, error handling
   config.ts                     # Environment variable loading (dotenv + env-var)
   constants.ts                  # Telegram system account IDs
+  spam-rules.ts                 # Categorized regex spam rules with building blocks
   handlers/
     index.ts                    # Barrel export
     MessageHandler.ts           # Main message handler — validates, bans, forwards
@@ -27,7 +28,7 @@ src/
     alphabetUtils.ts            # Classify characters by alphabet
     chineseRule.ts              # Detect Chinese (CJK) characters
     greekRule.ts                # Detect Greek alphabet characters
-    keywordRule.ts              # Match spam keywords and regex patterns
+    keywordRule.ts              # Match spam regex rules from spam-rules.ts
     koreanRule.ts               # Detect Korean (Hangul) characters
     mixedAlphabetRule.ts        # Detect mixed-alphabet character confusion
     validateMessage.ts          # Orchestrator — runs all rules
@@ -35,9 +36,6 @@ src/
     index.ts                    # Barrel export
     debug.utils.ts              # Debug logging (non-production only)
     formatters.utils.ts         # Format ban reasons, user identifiers
-references/
-  spam-keywords.json            # Banned keyword strings
-  spam-patterns.json            # Regex patterns for spam detection
 ```
 
 ## Message Processing Flow
@@ -112,7 +110,7 @@ Same flow as normal message, but `isEdit = true`. The ban reason reply includes 
 1. findMixedAlphabetWord(text)
    → word with 2+ non-dominant alphabet chars → ban
 2. findSpamKeyword(text)
-   → substring match against keywords.json OR regex match against patterns.json → ban
+   → regex match against spam-rules.ts categories → ban
 3. findGreek(text)
    → any Greek character (U+0370–U+03FF, U+1F00–U+1FFF) → ban
 4. findKorean(text)

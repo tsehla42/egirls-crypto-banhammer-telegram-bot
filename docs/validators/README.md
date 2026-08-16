@@ -20,7 +20,6 @@ interface ValidationResult {
   ruleName?: string;      // 'mixed_rule' | 'keyword_rule' | 'greek_rule' | 'korean_rule' | 'chinese_rule'
   triggerWord?: string;   // The word/keyword/character count that triggered the ban
   isEdit?: boolean;       // Set externally when triggered by message edit
-  isPattern?: boolean;    // true if keyword match was a regex pattern
 }
 ```
 
@@ -54,27 +53,21 @@ Detects character confusion attacks where attackers substitute look-alike charac
 
 **File:** `keywordRule.ts`
 
-Matches message text against two data sources:
+Matches message text against categorized regex rules defined in `src/spam-rules.ts`.
 
-**1. Spam Keywords** (`references/spam-keywords.json`)
-- JSON array of strings
-- Case-insensitive substring match
-- Example: `["free crypto", "airdrop now", "click here"]`
+**Data source:** `src/spam-rules.ts`
+- All entries are regex patterns with the `i` flag (case-insensitive)
+- Rules organized into 7 categories: `earnings`, `housing`, `crypto`, `contactRequests`, `jobScam`, `gambling`, `genericSpam`
+- Reusable building blocks: `CURRENCY` (грн/$€₽₴), `AMOUNT` (currency + number patterns)
+- Text is NFC-normalized before matching
+- First matching rule wins
 
-**2. Spam Patterns** (`references/spam-patterns.json`)
-- JSON array of regex pattern strings
-- Compiled with `'i'` flag (case-insensitive)
-- Example: `["t\\.me/\\+", "bit\\.ly/"]`
-
-**Matching order:** Keywords are checked first (substring), then patterns (regex). First match wins.
-
-**Caching:** Both lists are loaded once from disk and cached in module-level variables. Restart bot after modifying the JSON files.
+**Adding new rules:** Add a regex entry to the appropriate category in `src/spam-rules.ts`. Plain substring matches become `/keyword text/i`. Use building blocks for currency/amount patterns.
 
 **Return type:**
 ```typescript
 interface SpamMatch {
-  value: string;     // The matched keyword or pattern source string
-  isPattern: boolean; // true if matched via regex
+  value: string;     // The matched regex source string
 }
 ```
 
@@ -176,30 +169,25 @@ Counts CJK (Chinese/Han) characters in the message. Bans if count exceeds thresh
      return `Description of violation ${wrap(triggerWord)}`;
    ```
 
-## Modifying Spam Data
+## Modifying Spam Rules
 
-### Keywords
+Edit `src/spam-rules.ts` and add a regex entry to the appropriate category:
 
-Edit `references/spam-keywords.json`:
-```json
-["free crypto", "airdrop now", "join my channel"]
+```typescript
+export const spamRules = {
+  earnings: [
+    /your new pattern/i,
+  ],
+  // ... other categories
+} as const;
 ```
 
-- Case-insensitive substring match
-- Empty strings are skipped
-- Restart bot after changes (cached in memory)
-
-### Patterns
-
-Edit `references/spam-patterns.json`:
-```json
-["t\\.me/\\+", "bit\\.ly/", "https?://.*\\.xyz"]
-```
-
-- Standard JavaScript regex syntax
-- Compiled with `'i'` flag (case-insensitive)
-- Invalid patterns log an error and are skipped
-- Restart bot after changes (cached in memory)
+**Rules:**
+- Every entry must be a regex with the `i` flag
+- Plain substring matches become `/keyword text/i`
+- Use `CURRENCY` and `AMOUNT` building blocks for currency patterns
+- Organize by category for maintainability
+- Restart bot after changes (rules are imported at startup)
 
 ## Related
 
