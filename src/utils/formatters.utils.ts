@@ -1,5 +1,6 @@
 import type { User, Chat } from "grammy/types";
 import type { ValidationResult } from "../validators";
+import { FALLBACK, REASON } from "../strings";
 
 /**
  * Format a value for output, using "-" for missing values
@@ -27,7 +28,7 @@ export const formatUsername = (username: string | undefined): string => {
  */
 export const formatUserIdentifier = (from?: User): string => {
   if (!from) {
-    return "Unknown user";
+    return FALLBACK.UNKNOWN_USER;
   }
 
   const firstName = from.first_name?.trim();
@@ -44,12 +45,12 @@ export const formatUserIdentifier = (from?: User): string => {
   }
 
   // Last resort: use user ID
-  return `User ID ${from.id} (no other identifier available)`;
+  return FALLBACK.USER_ID_ONLY.replace("{id}", String(from.id));
 };
 
 export const formatChatIdentifier = (chat?: Chat): string => {
   if (!chat) {
-    return "Unknown chat";
+    return FALLBACK.UNKNOWN_CHAT;
   }
 
   if ("title" in chat && chat.title) {
@@ -60,7 +61,7 @@ export const formatChatIdentifier = (chat?: Chat): string => {
     return `@${chat.username}`;
   }
 
-  return `Chat ID ${chat.id}`;
+  return FALLBACK.CHAT_ID_ONLY.replace("{id}", String(chat.id));
 };
 
 /**
@@ -98,26 +99,28 @@ const buildBanReason = (validation: ValidationResult, wrap: (word: string) => st
   const { ruleName, triggerWord } = validation;
 
   if (!triggerWord) {
-    return 'Unknown reason';
+    return FALLBACK.UNKNOWN_REASON;
   }
 
   switch (ruleName) {
     case 'mixed_rule':
-      return `Message contains mixed alphabets in word ${wrap(triggerWord)} (character confusion attack)`;
+      return REASON.MIXED_ALPHABETS.replace("{trigger}", wrap(triggerWord));
     case 'keyword_rule':
-      return `Message contains spam regex ${wrap(triggerWord)}`;
+      return REASON.SPAM_KEYWORD.replace("{trigger}", wrap(triggerWord));
     case 'greek_rule':
-      return `Message contains Greek alphabet symbol in word ${wrap(triggerWord)}`;
+      return REASON.GREEK_SYMBOL.replace("{trigger}", wrap(triggerWord));
     case 'korean_rule': {
       const count = triggerWord.split('_')[0];
-      return `Message contains ${count} Korean characters (threshold: 15)`;
+      return REASON.KOREAN_CHARS.replace("{count}", count);
     }
     case 'chinese_rule': {
       const count = triggerWord.split('_')[0];
-      return `Message contains ${count} Chinese characters`;
+      return REASON.CHINESE_CHARS.replace("{count}", count);
     }
+    case 'banned_channel_rule':
+      return REASON.BANNED_CHANNEL.replace("{trigger}", wrap(triggerWord));
     default:
-      return `Unknown reason: ${wrap(triggerWord)}`;
+      return REASON.UNKNOWN.replace("{trigger}", wrap(triggerWord));
   }
 };
 

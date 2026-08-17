@@ -1,6 +1,7 @@
 import { Context } from "grammy";
 import { type ValidationResult } from "../validators";
 import { formatUserIdentifier, formatBanReason } from "../utils";
+import { MSG } from "../strings";
 
 export const replyToViolatingMessage = async (
   ctx: Context,
@@ -11,11 +12,12 @@ export const replyToViolatingMessage = async (
   const userIdentifier = formatUserIdentifier(from);
   const formattedReason = formatBanReason(validation);
 
-  const editLabel = validation.isEdit ? "\nEdited message" : "";
-
   try {
+    const editLabel = validation.isEdit ? MSG.EDITED_LABEL : "";
     await ctx.reply(
-      `🖕 Banned user <b>${userIdentifier}</b>${editLabel}\nReason: ${formattedReason}`,
+      MSG.BAN_CONFIRMATION
+        .replace("{name}", userIdentifier) +
+      `${editLabel}\nReason: ${formattedReason}`,
       {
         reply_parameters: { message_id: message?.message_id! },
         parse_mode: "HTML",

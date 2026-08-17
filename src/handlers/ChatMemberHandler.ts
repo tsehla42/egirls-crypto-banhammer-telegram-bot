@@ -1,5 +1,6 @@
 import { Context } from "grammy";
 import { registerChat, deactivateChat, updateBotPermissionCache } from "../services";
+import { MSG } from "../strings";
 
 /**
  * Handles my_chat_member events to keep the chat registry up to date,
@@ -33,17 +34,7 @@ export const handleBotChatMemberUpdate = async (ctx: Context): Promise<void> => 
     updateBotPermissionCache(chat.id, getBotBanPermissionFromUpdate());
 
     try {
-      await ctx.reply(
-        `👋 <b>Welcome to Banhammer Bot!</b>\n\n` +
-        `<b>⚙️ Required Setup:</b>\n` +
-        `Add me to your <b>Administrators</b> list\n` +
-        `Grant me these permissions:\n` +
-        `   - Delete messages\n` +
-        `   - Ban users\n\n` +
-        {
-          parse_mode: "HTML",
-        }
-      );
+      await ctx.reply(MSG.WELCOME, { parse_mode: "HTML" });
     } catch (error) {
       console.error(`[ChatMemberHandler] Failed to send welcome message: ${error}`);
     }

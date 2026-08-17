@@ -2,11 +2,13 @@
  * Main message validator that applies all moderation rules
  */
 
+import { findBannedChannel } from './bannedChannelsRule';
 import { findMixedAlphabetWord } from './mixedAlphabetRule';
 import { findGreek } from './greekRule';
 import { findKorean } from './koreanRule';
 import { findChinese } from './chineseRule';
 import { findSpamKeyword } from './keywordRule';
+import { RULE } from '../strings';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -18,14 +20,24 @@ export interface ValidationResult {
 /**
  * Validate message against all moderation rules
  * @param text - Message text to validate
+ * @param senderId - Telegram user ID of the sender (optional, used for banned channel ID check)
  * @returns ValidationResult with validity status and reason if invalid
  */
-export const validateMessage = (text: string): ValidationResult => {
+export const validateMessage = (text: string, senderId?: number): ValidationResult => {
+  const bannedMatch = findBannedChannel(text, senderId);
+  if (bannedMatch) {
+    return {
+      isValid: false,
+      ruleName: RULE.BANNED_CHANNEL,
+      triggerWord: bannedMatch.channelName,
+    };
+  }
+
   const mixedWord = findMixedAlphabetWord(text);
   if (mixedWord) {
     return {
       isValid: false,
-      ruleName: 'mixed_rule',
+      ruleName: RULE.MIXED,
       triggerWord: mixedWord,
     };
   }
@@ -34,7 +46,7 @@ export const validateMessage = (text: string): ValidationResult => {
   if (spamKeyword) {
     return {
       isValid: false,
-      ruleName: 'keyword_rule',
+      ruleName: RULE.KEYWORD,
       triggerWord: spamKeyword.value,
     };
   }
@@ -43,7 +55,7 @@ export const validateMessage = (text: string): ValidationResult => {
   if (greekMatch) {
     return {
       isValid: false,
-      ruleName: 'greek_rule',
+      ruleName: RULE.GREEK,
       triggerWord: greekMatch.word,
     };
   }
@@ -52,7 +64,7 @@ export const validateMessage = (text: string): ValidationResult => {
   if (koreanCount !== null) {
     return {
       isValid: false,
-      ruleName: 'korean_rule',
+      ruleName: RULE.KOREAN,
       triggerWord: `${koreanCount}_korean_chars`,
     };
   }
@@ -61,7 +73,7 @@ export const validateMessage = (text: string): ValidationResult => {
   if (chineseCount !== null) {
     return {
       isValid: false,
-      ruleName: 'chinese_rule',
+      ruleName: RULE.CHINESE,
       triggerWord: `${chineseCount}_chinese_chars`,
     };
   }

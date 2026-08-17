@@ -5,3 +5,4 @@ export { findChinese } from './chineseRule';
 export { findSpamKeyword } from './keywordRule';
 export { validateMessage, type ValidationResult } from './validateMessage';
 export { getAlphabetType } from './alphabetUtils';
+export { findBannedChannel, type BannedChannelMatch } from './bannedChannelsRule';

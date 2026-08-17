@@ -22,7 +22,10 @@ export const handleMessage = async (ctx: Context, isEdit = false): Promise<void>
 
   if (await shouldSkipMessage(ctx)) return;
 
-  const validation = validateMessage(message?.text || message?.caption || "");
+  const text = message?.text || message?.caption || "";
+  const senderId = message?.sender_chat?.id
+    ?? (message?.forward_origin as any)?.chat?.id;
+  const validation = validateMessage(text, senderId);
 
   if (!validation.isValid) {
     validation.isEdit = isEdit;

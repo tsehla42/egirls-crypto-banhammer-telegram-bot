@@ -1,6 +1,7 @@
 import { Context } from "grammy";
 import { BOT_ADMIN_IDS, ID_VIOLATIONS_LOG_CHANNEL } from "../config";
 import { TELEGRAM_CHANNEL_BOT_ID } from "../constants";
+import { MSG, RULE } from "../strings";
 import { isUserAdmin, isBotAllowedToBan, getLinkedChannelId } from "../services/ChatPermissionService";
 import { logBan } from "../services/LogService";
 import {
@@ -82,7 +83,7 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
   const botCanBan = await isBotAllowedToBan(ctx, chat!.id);
   if (!botCanBan) {
     try {
-      await ctx.reply("I don't have permission to ban users in this chat.");
+      await ctx.reply(MSG.BAN_NO_PERMISSION);
     } catch {}
     await deleteMessage(ctx.api, chat!.id, message!.message_id);
     return;
@@ -123,7 +124,8 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
 
     if (!silent) {
       await ctx.reply(
-        `🖕 Banned user <b>${escapeHtml(targetName)}</b>\nReason: manual ban by ${escapeHtml(adminName)}`,
+        MSG.BAN_CONFIRMATION.replace("{name}", escapeHtml(targetName)) +
+        MSG.REASON_MANUAL_BAN.replace("{admin}", escapeHtml(adminName)),
         { parse_mode: "HTML" }
       );
     }
@@ -138,15 +140,15 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
     logBan({
       user: resolveLogUser(replyTo, targetId),
       chat: chat!,
-      ruleName: "manual_ban",
-      triggerWord: "manual_ban_by_admin",
+      ruleName: RULE.MANUAL_BAN,
+      triggerWord: RULE.TRIGGER_MANUAL_BAN,
     });
 
   } catch (error: any) {
     console.error(`[BanCommand] Failed to ban user ${targetId}: ${error.message}`);
     if (!isKnownBanFailure(error)) {
       try {
-        await ctx.reply(`Failed to ban user: ${error.message}`);
+        await ctx.reply(MSG.BAN_FAILED.replace("{error}", error.message));
       } catch {}
     }
     await deleteMessage(ctx.api, chat!.id, message!.message_id);
