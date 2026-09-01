@@ -3,6 +3,7 @@ export const MSG = {
   BAN_CONFIRMATION: "🖕 Banned user <b>{name}</b>",
   BAN_FAILED: "Failed to ban user: {error}",
   REASON_MANUAL_BAN: "\nReason: manual ban by {admin}",
+  MANUAL_BAN_HEADER: "User {user}{username} was manually banned by {admin}{admin_username} in group {chat}{chat_username}.",
   WELCOME:
     `👋 <b>Welcome to Banhammer Bot!</b>\n\n` +
     `<b>⚙️ Required Setup:</b>\n` +

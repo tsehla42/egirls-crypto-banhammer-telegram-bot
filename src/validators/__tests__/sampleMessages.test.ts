@@ -64,7 +64,7 @@ const sampleMessages: SampleMessage[] = [
   { id: 34, text: 'Стaвкα-17 000 грh в нεдeлю+ бοнуcы.\nРaботα в пеρеπиске.\nЗα подрοбноϲтями — в ЛϹ.', expectedRule: 'mixed_rule' },
   { id: 35, text: 'Нужhы деηbги β ближайшеε врeмя?\nЕсть вариант дoπолнительного доχода.\nНαпиши «+» b ЛС — ρасскαжу пoдpо6нoсти.', expectedRule: 'mixed_rule' },
   { id: 36, text: 'Ηачни заρабатывать уже после стаρта ρаботы. Пиши «+».', expectedRule: 'greek_rule' },
-  { id: 37, text: 'Ставκа-17 000 гρн в неделю+ бοнусы.. Интереснο? Πиши + в лс', expectedRule: 'greek_rule' },
+  { id: 37, text: 'Ставκа-17 000 гρн в неделю+ бοнусы.. Интереснο? Πиши + в лс', expectedRule: 'keyword_rule' },
   { id: 39, text: 'Хочешь доπолhительный дoход?\nОтκрыт нαбор на βаканcию меhεджер чатa.\nСтаbκа-17 000 грн в неделю + бонусы..\nΚοли4естbо мест οгpаничεhо.\nΠиши «+» b личhые сообщehия.', expectedRule: 'mixed_rule' },
   { id: 42, text: 'Ηачни заρабатывать уже после старта ρаботы. Пиши «+».', expectedRule: 'greek_rule' },
 

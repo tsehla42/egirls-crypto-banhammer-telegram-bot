@@ -130,6 +130,23 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
       );
     }
 
+    const targetUsername = replyTo.from?.username ? ` @${replyTo.from.username}` : "";
+    const adminUsername = ctx.from?.username ? ` @${ctx.from.username}` : "";
+    const chatUsername = chat!.username ? ` @${chat!.username}` : "";
+    const headerText = MSG.MANUAL_BAN_HEADER
+      .replace("{user}", escapeHtml(targetName))
+      .replace("{username}", targetUsername)
+      .replace("{admin}", escapeHtml(adminName))
+      .replace("{admin_username}", adminUsername)
+      .replace("{chat}", escapeHtml(chat!.title || ""))
+      .replace("{chat_username}", chatUsername);
+
+    try {
+      await ctx.api.sendMessage(ID_VIOLATIONS_LOG_CHANNEL, headerText);
+    } catch (headerError: any) {
+      console.error(`[BanCommand] Failed to send manual ban header: ${headerError.message}`);
+    }
+
     await forwardMessageToChannel(
       ctx.api,
       ID_VIOLATIONS_LOG_CHANNEL,
