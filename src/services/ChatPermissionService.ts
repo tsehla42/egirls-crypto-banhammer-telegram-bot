@@ -31,7 +31,8 @@ export const isBotAllowedToBan = async (ctx: Context, chatId: number): Promise<b
       member.status === "administrator" && member.can_restrict_members === true;
     permissionCache.set(chatId, { canBan, cachedAt: now });
     return canBan;
-  } catch {
+  } catch (error: any) {
+    console.error(`[ChatPermission] isBotAllowedToBan failed for chat ${chatId}: ${error.message}`);
     return false;
   }
 };
@@ -54,7 +55,8 @@ export const isUserAdmin = async (ctx: Context, chatId: number, userId: number):
     const isAdmin = member.status === "administrator" || member.status === "creator";
     adminCache.set(key, { isAdmin, cachedAt: now });
     return isAdmin;
-  } catch {
+  } catch (error: any) {
+    console.error(`[ChatPermission] isUserAdmin API failed for ${key}: ${error.message}`);
     return false;
   }
 };

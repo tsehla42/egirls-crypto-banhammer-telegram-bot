@@ -124,7 +124,9 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
 
     if (!silent) {
       await ctx.reply(
-        MSG.BAN_CONFIRMATION.replace("{name}", escapeHtml(targetName)) +
+        MSG.BAN_CONFIRMATION
+          .replace("{name}", escapeHtml(targetName))
+          .replace("{id}", String(targetId)) +
         MSG.REASON_MANUAL_BAN.replace("{admin}", escapeHtml(adminName)),
         { parse_mode: "HTML" }
       );
@@ -136,6 +138,7 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
     const headerText = MSG.MANUAL_BAN_HEADER
       .replace("{user}", escapeHtml(targetName))
       .replace("{username}", targetUsername)
+      .replace("{id}", String(replyTo.from?.id ?? ""))
       .replace("{admin}", escapeHtml(adminName))
       .replace("{admin_username}", adminUsername)
       .replace("{chat}", escapeHtml(chat!.title || ""))

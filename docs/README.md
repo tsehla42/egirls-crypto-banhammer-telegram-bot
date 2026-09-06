@@ -13,12 +13,14 @@ Bot monitors a Telegram group chat (linked to a channel for comments). Each new 
 - [Services](services/) - Ban, reply, forwarding, logging, permissions, chat registry
 - [Deployment](deployment/) - Docker setup, production commands
 - [Configuration](configuration/) - Environment variables
+- [Incidents](incidents/) - Post-incident reports for production bugs
 
 ## Modules
 
 ### bot.ts
 Entry point. Creates grammY `Bot` instance, registers handlers, starts polling.
 - `ban` command → `handleBanCommand(ctx)` (registered before message handler)
+- `unban` command → `handleUnbanCommand(ctx)` (registered after ban handler)
 - `message` event → `handleMessage(ctx)`
 - `edited_message` event → `handleMessage(ctx, true)`
 - `my_chat_member` event → `handleBotChatMemberUpdate(ctx)`
@@ -60,6 +62,22 @@ Handles `/ban` command for manual bans by admins. Flow:
 Flags: `/ban s` or `/ban silent` — bans without posting confirmation reply.
 Authorization: User is authorized if their user ID or channel ID is in `BOT_ADMIN_IDS`, OR if they are a chat administrator/creator.
 Protected targets: Telegram channel bot (777000), linked channel, group itself, bot itself, chat owner, chat admins.
+
+### handlers/UnbanCommandHandler.ts
+Handles `/unban` command for unbanning previously banned users. Two scenarios:
+1. **Reply scenario:** Admin replies to bot's ban confirmation message → extracts user ID from message text using regex
+2. **Direct scenario:** Admin provides `/unban <user_id>` → unban specific user by ID
+
+Flow:
+1. Check it's a group/supergroup chat
+2. Check sender is authorized (same as /ban)
+3. Check bot has ban permission
+4. Resolve target user ID (from message text or command argument)
+5. Call `unbanChatMember` with `only_if_banned: true`
+6. On success: reply with confirmation
+7. On failure: reply with error message
+
+Non-admin invocations are silently deleted. Parses user ID directly from the ban message text using regex pattern `\(<code>(\d+)<\/code>\)`.
 
 ### handlers/ChatMemberHandler.ts
 Handles `my_chat_member` updates:
@@ -111,7 +129,7 @@ Bans user and deletes violating message:
 ### services/ReplyService.ts
 Replies to violating message with ban reason. Format:
 ```
-🖕 Banned user <name>
+🖕 Banned user <name> (<code>123456789</code>)
 Reason: <formatted reason>
 ```
 Includes "Edited message" label if triggered by message edit.
@@ -203,7 +221,7 @@ MessageHandler.handleMessage()
     +-- [VIOLATION FOUND]
         |
         +-- replyToViolatingMessage()
-        |   Reply to message: "🖕 Banned user <name>\nReason: <reason>"
+        |   Reply to message: "🖕 Banned user <name> (<code>id</code>)\nReason: <reason>"
         |
         +-- forwardViolatingMessage()
         |   Forward violating message to log channel (silent)
@@ -212,6 +230,22 @@ MessageHandler.handleMessage()
             +-- Delete violating message
             +-- Ban user from chat
             +-- logBan() → write to logs/{chat}.ban.log
+
+/unban command from admin
+    |
+    v
+bot.ts: /unban command handler
+    |
+    v
+UnbanCommandHandler.handleUnbanCommand()
+    |
+    +-- Check authorization (bot admin or chat admin)
+    +-- Check bot has ban permission
+    +-- Resolve target user ID:
+    |   +-- Reply to bot's ban message → extract ID from message text
+    |   +-- /unban <user_id> → use provided ID directly
+    +-- unbanChatMember(chatId, userId, { only_if_banned: true })
+    +-- Reply with success/failure message
 
 Bot added to new chat
     |

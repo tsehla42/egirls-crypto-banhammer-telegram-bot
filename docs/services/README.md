@@ -51,13 +51,13 @@ replyToViolatingMessage(ctx: Context, validation: ValidationResult): Promise<voi
 
 **Reply format (HTML):**
 ```
-🖕 Banned user <b>John Doe</b>
+🖕 Banned user <b>John Doe</b> (<code>123456789</code>)
 Reason: Message contains Greek alphabet symbol in word <code>σκύλος</code>
 ```
 
 If the violation was from an edited message, includes "Edited message" label:
 ```
-🖕 Banned user <b>John Doe</b>
+🖕 Banned user <b>John Doe</b> (<code>123456789</code>)
 Edited message
 Reason: Message contains spam keyword <code>free crypto</code>
 ```
@@ -135,6 +135,8 @@ updateBotPermissionCache(chatId: number, canBan: boolean): void
 Manually update the permission cache (called from ChatMemberHandler when bot permissions change).
 
 **Cache implementation:** Simple `Map` with TTL check. No eviction — entries accumulate but are small.
+
+**Error handling:** Both `isBotAllowedToBan` and `isUserAdmin` catch API errors and log them via `console.error` with `[ChatPermission]` prefix. On failure, both return `false` (safe default — denies access).
 
 ---
 

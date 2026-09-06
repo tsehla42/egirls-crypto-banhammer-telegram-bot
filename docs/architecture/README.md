@@ -13,6 +13,8 @@ src/
   handlers/
     index.ts                    # Barrel export
     MessageHandler.ts           # Main message handler — validates, bans, forwards
+    BanCommandHandler.ts        # /ban command — manual bans by admins
+    UnbanCommandHandler.ts      # /unban command — reverse bans by admins
     ChatMemberHandler.ts        # Bot added/removed from chat events
   services/
     index.ts                    # Barrel export
@@ -55,6 +57,23 @@ src/
       - deleteMessage(chatId, messageId)
       - banChatMember(chatId, userId)
       - logBan(data) → logs/{chat}.ban.log
+```
+
+### Unban Command
+
+```
+1. bot.ts receives /unban command
+2. UnbanCommandHandler.handleUnbanCommand(ctx)
+3. Check it's a group/supergroup chat
+4. Check sender is authorized (bot admin or chat admin)
+5. Check bot has ban permission
+6. Resolve target user ID:
+   a. Reply to bot's ban message → extract ID from message text using regex
+   b. /unban <user_id> → use provided ID directly
+7. Check if user is actually banned (getChatMember status === "kicked")
+   - If not banned → silently delete command message, return
+8. unbanChatMember(chatId, userId, { only_if_banned: true })
+9. Reply with success/failure message
 ```
 
 ### Edited Message

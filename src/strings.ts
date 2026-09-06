@@ -1,9 +1,9 @@
 export const MSG = {
   BAN_NO_PERMISSION: "I don't have permission to ban users in this chat.",
-  BAN_CONFIRMATION: "🖕 Banned user <b>{name}</b>",
+  BAN_CONFIRMATION: "🖕 Banned user <b>{name}</b> (<code>{id}</code>)",
   BAN_FAILED: "Failed to ban user: {error}",
   REASON_MANUAL_BAN: "\nReason: manual ban by {admin}",
-  MANUAL_BAN_HEADER: "User {user}{username} was manually banned by {admin}{admin_username} in group {chat}{chat_username}.",
+  MANUAL_BAN_HEADER: "User {user} {username} (<code>{id}</code>) was manually banned by {admin} {admin_username} in group {chat} {chat_username}.",
   WELCOME:
     `👋 <b>Welcome to Banhammer Bot!</b>\n\n` +
     `<b>⚙️ Required Setup:</b>\n` +
@@ -12,6 +12,10 @@ export const MSG = {
     `   - Delete messages\n` +
     `   - Ban users\n\n`,
   EDITED_LABEL: "\nEdited message",
+  UNBAN_NO_PERMISSION: "I don't have permission to unban users in this chat.",
+  UNBAN_NO_TARGET: "Usage: reply to ban message with /unban, or /unban &lt;user_id&gt;",
+  UNBAN_SUCCESS: "✅ Unbanned user <code>{id}</code>",
+  UNBAN_FAILED: "❌ Failed to unban user: {error}",
 } as const;
 
 export const FALLBACK = {

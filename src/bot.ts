@@ -1,7 +1,7 @@
 import { Bot, GrammyError, HttpError, type ErrorHandler } from "grammy";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { API_KEY } from "./config";
-import { handleBotChatMemberUpdate, handleBanCommand, handleMessage } from "./handlers";
+import { handleBotChatMemberUpdate, handleBanCommand, handleUnbanCommand, handleMessage } from "./handlers";
 
 const bot = new Bot(API_KEY as string);
 bot.api.config.use(autoRetry());
@@ -21,6 +21,7 @@ const errorHandler: ErrorHandler = (err) => {
 bot.catch(errorHandler);
 
 bot.command("ban", handleBanCommand);
+bot.command("unban", handleUnbanCommand);
 bot.on("my_chat_member", async (ctx) => await handleBotChatMemberUpdate(ctx));
 bot.on("message", (ctx) => handleMessage(ctx));
 bot.on("edited_message", (ctx) => handleMessage(ctx, true));

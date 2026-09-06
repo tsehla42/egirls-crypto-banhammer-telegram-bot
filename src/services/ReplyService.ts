@@ -9,6 +9,7 @@ export const replyToViolatingMessage = async (
 ): Promise<void> => {
   const message = ctx.msg;
   const from = ctx.from;
+  if (!from) return;
   const userIdentifier = formatUserIdentifier(from);
   const formattedReason = formatBanReason(validation);
 
@@ -16,7 +17,8 @@ export const replyToViolatingMessage = async (
     const editLabel = validation.isEdit ? MSG.EDITED_LABEL : "";
     await ctx.reply(
       MSG.BAN_CONFIRMATION
-        .replace("{name}", userIdentifier) +
+        .replace("{name}", userIdentifier)
+        .replace("{id}", String(from.id)) +
       `${editLabel}\nReason: ${formattedReason}`,
       {
         reply_parameters: { message_id: message?.message_id! },
@@ -26,4 +28,4 @@ export const replyToViolatingMessage = async (
   } catch (error) {
     console.error(`[ReplyService] Failed to send reply message: ${error}`);
   }
-}
+};
