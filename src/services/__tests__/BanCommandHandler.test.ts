@@ -195,6 +195,23 @@ describe("handleBanCommand — happy path", () => {
     );
   });
 
+  it("sends manual ban header to log channel with HTML parse mode", async () => {
+    const ctx = makeCtx({
+      chatType: "supergroup",
+      fromId: 111111,
+      replyToMessage: true,
+      replyFromId: 999999,
+    });
+
+    await handleBanCommand(ctx);
+
+    expect(ctx.api.sendMessage).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.stringContaining("(<code>999999</code>)"),
+      { parse_mode: "HTML" }
+    );
+  });
+
   it("escapes HTML in target and admin names", async () => {
     const ctx = makeCtx({
       chatType: "supergroup",

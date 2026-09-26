@@ -145,7 +145,9 @@ export const handleBanCommand = async (ctx: Context): Promise<void> => {
       .replace("{chat_username}", chatUsername);
 
     try {
-      await ctx.api.sendMessage(ID_VIOLATIONS_LOG_CHANNEL, headerText);
+      await ctx.api.sendMessage(ID_VIOLATIONS_LOG_CHANNEL, headerText, {
+        parse_mode: "HTML",
+      });
     } catch (headerError: any) {
       console.error(`[BanCommand] Failed to send manual ban header: ${headerError.message}`);
     }
