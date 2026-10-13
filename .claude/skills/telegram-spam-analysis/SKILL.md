@@ -7,7 +7,12 @@ description: Use when analyzing new Telegram spam messages for the egirls-crypto
 
 ## Overview
 
-Classify new Telegram spam and add the minimum effective regex entries to `src/spam-rules.ts`. Only add what earlier rules don't already catch.
+Classify new Telegram spam and add regex entries to `src/spam-rules.ts`.
+
+Modern spam messages are rich — a single message usually carries 2–4 independent keyword patterns. Analyze **every** match of every message, not just the first:
+
+- **PASSED** messages — mine all distinctive signals into candidate rules
+- **FLAGGED** messages — still harvest extra markers from the probe's `also matches` lines: if the spammer fixes one trigger, another pattern should still ban the variant
 
 ## Validation Pipeline (What's Already Filtered)
 
@@ -21,7 +26,20 @@ Check in order. If a message is caught at any step, **do not add a rule for it**
 | Chinese | >6 CJK characters |
 | Spam Rules | `src/spam-rules.ts` — categorized regex patterns |
 
-**Test BEFORE adding:** Does the message slip through all four pre-keyword rules?
+### Step 0: Probe the batch (default verification tool)
+
+```bash
+npm run probe -- messages.json       # JSON array of strings or {"id","text"} objects
+npm run probe -- messages.txt        # raw text, messages separated by a --- line
+cat msgs.json | npm run probe -- -   # stdin (JSON or raw)
+```
+
+The probe runs `validateMessage` — the app's real pipeline, same rule order — and reports per message:
+
+- **PASSED** — survives everything → needs new rules; full message text is printed for analysis
+- **FLAGGED** — banned; prints the authoritative first hit **plus every other matching rule** (`also matches:` lines) for marker harvesting
+
+Never eyeball a batch by hand — the probe is ground truth. Re-run it after adding rules: the whole batch must come back FLAGGED.
 
 ## Spam Category Taxonomy
 
@@ -96,6 +114,12 @@ new RegExp(`${AMOUNT}\\s*(?:в\\s+неделю|/неделя)`, 'i'),
 /даниил(а)? и сэм(а)?/i,
 ```
 
+**TRAIL convention (sexualSpam style):**
+- **Closed phrase** — ends on a complete word: `new RegExp(\`full phrase${TRAIL}\`, 'i')`
+- **Open stem** — truncated last word (`перепис`, `подружк`, `задоволенн`): plain `/…stem/i`
+
+`${TRAIL}` extends the match to the end of the message. It is wrapped `(?:…)?` inside the constant, so appending it can never cause a miss.
+
 ### Step 3: Stemming (Slavic languages)
 
 Ukrainian and Russian decline nouns. Strip the inflectional suffix **of the last word only**.
@@ -124,7 +148,7 @@ export const spamRules = {
 
 **Rules:**
 - Every entry MUST have the `i` flag
-- Use `// From spam-patterns.json` or similar comments for provenance when consolidating existing entries
+- Use comments for provenance when consolidating or porting entries from older rule sets
 - Restart bot after changes (rules are imported at startup)
 
 ## False Positive Guards
@@ -146,15 +170,17 @@ Do **not** add:
 ## Post-Add Steps
 
 After adding rules, always:
-1. Increment `version` in `package.json` by 0.0.1
-2. Run `npm install` to update the lockfile
+1. Re-run `npm run probe` — every message in the batch must be FLAGGED
+2. Promote the batch to `src/validators/__tests__/recentSpamMessages.test.ts`: per-message `{id, text, expectedRule}` entries, plus legitimate messages as guard cases that must keep passing
+3. Run `npm test` — all green
+4. Increment `version` in `package.json` by 0.0.1
+5. Run `npm install` to update the lockfile
 
 ## Quick Reference: Before Submitting
 
-- [ ] Message passes Mixed Alphabet check? (no word mixes 2+ minority-alphabet chars)
-- [ ] Message passes Greek check? (no Greek characters)
-- [ ] Message passes Korean/Chinese thresholds?
-- [ ] Not already matched by existing rules in `src/spam-rules.ts`?
+- [ ] Ran `npm run probe` — PASSED analyzed in full, FLAGGED mined for extra `also matches` markers?
+- [ ] Re-probed after adding rules — batch fully FLAGGED?
+- [ ] Batch promoted to `recentSpamMessages.test.ts` and `npm test` green?
 - [ ] Phrase is 2–4 words (or single word that's a very distinctive spam term)?
 - [ ] Last word only is stemmed (if Slavic inflected phrase)?
 - [ ] Not a false positive in normal Ukrainian/Russian conversation?

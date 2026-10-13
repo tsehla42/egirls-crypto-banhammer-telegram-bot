@@ -126,4 +126,4 @@ Log lines:
 ## Related
 
 - [Deployment](../deployment/) — Docker setup and commands
-- [Validators](../validators/) — How spam data files are used
+- [Validators](../validators/) — How validation rules are applied

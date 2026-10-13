@@ -57,12 +57,12 @@ Matches message text against categorized regex rules defined in `src/spam-rules.
 
 **Data source:** `src/spam-rules.ts`
 - All entries are regex patterns with the `i` flag (case-insensitive)
-- Rules organized into 7 categories: `earnings`, `housing`, `crypto`, `contactRequests`, `jobScam`, `gambling`, `genericSpam`
-- Reusable building blocks: `CURRENCY` (грн/$€₽₴), `AMOUNT` (currency + number patterns)
+- Rules organized into 8 categories: `earnings`, `housing`, `crypto`, `contactRequests`, `jobScam`, `gambling`, `sexualSpam`, `genericSpam`
+- Reusable building blocks: `CURRENCY` (грн/$€₽₴), `AMOUNT` (currency + number patterns), `TRAIL` (optional end-of-message tail for closed phrases)
 - Text is NFC-normalized before matching
 - First matching rule wins
 
-**Adding new rules:** Add a regex entry to the appropriate category in `src/spam-rules.ts`. Plain substring matches become `/keyword text/i`. Use building blocks for currency/amount patterns.
+**Adding new rules:** Run `npm run probe -- <file>` on the batch first — PASSED messages need rules (full text shown by the probe), FLAGGED messages yield extra markers from the `also matches` lines. Add regex entries to the appropriate category in `src/spam-rules.ts`. Plain substring matches become `/keyword text/i`. Use building blocks for currency/amount patterns. Then re-probe until the batch is fully FLAGGED, promote the batch into `src/validators/__tests__/recentSpamMessages.test.ts`, run `npm test`, and bump the package version.
 
 **Return type:**
 ```typescript
@@ -186,6 +186,8 @@ export const spamRules = {
 - Every entry must be a regex with the `i` flag
 - Plain substring matches become `/keyword text/i`
 - Use `CURRENCY` and `AMOUNT` building blocks for currency patterns
+- Use `new RegExp(\`…${TRAIL}\`, 'i')` for closed phrases, plain `/…/i` for truncated stems
+- Verify batches with `npm run probe` and the regression tests in `src/validators/__tests__/`
 - Organize by category for maintainability
 - Restart bot after changes (rules are imported at startup)
 

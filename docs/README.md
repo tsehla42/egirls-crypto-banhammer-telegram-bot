@@ -108,11 +108,7 @@ Counts Korean (Hangul) characters. Bans if count exceeds threshold (15). Covers 
 Counts CJK (Chinese/Han) characters. Bans if count exceeds threshold (4). Covers CJK Unified Ideographs, Extension A, Compatibility, and Extension B.
 
 ### validators/keywordRule.ts
-Matches against spam keywords and regex patterns loaded from JSON files:
-- `references/spam-keywords.json` — Array of strings, case-insensitive substring match
-- `references/spam-patterns.json` — Array of regex pattern strings, compiled with `'i'` flag
-
-Both lists are cached in memory after first load. Restart bot after changes.
+Matches message text against the categorized regex rules in `src/spam-rules.ts` (every entry carries the `i` flag). Rules are imported at startup — restart the bot after changes.
 
 ### validators/alphabetUtils.ts
 Utility to classify characters by alphabet:

@@ -1,6 +1,6 @@
 {
   "name": "egirls-crypto-banhammer-telegram-bot",
-  "version": "1.4.84",
+  "version": "1.4.85",
   "description": "Bot made for chat moderation of comments chat in Telegram messenger",
   "author": "tsehla42",
   "license": "GPL-3.0",
@@ -15,7 +15,8 @@
     "list-groups": "npx ts-node scripts/list-bot-groups.ts",
     "unban-test-user": "npx ts-node scripts/unban-test-user.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "probe": "npx tsc && node dist/tools/probe-spam.js"
   },
   "devDependencies": {
     "@types/node": "26.4.1",
