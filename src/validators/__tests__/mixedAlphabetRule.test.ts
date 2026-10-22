@@ -33,6 +33,14 @@ describe('getAlphabetType', () => {
     expect(getAlphabetType('🎉')).toBeNull();
     expect(getAlphabetType('-')).toBeNull();
   });
+
+  it('classifies styled/decorated letters as stylized', () => {
+    expect(getAlphabetType('𝔢')).toBe('stylized'); // Mathematical Fraktur small e (U+1D522, astral)
+    expect(getAlphabetType('𝔱')).toBe('stylized'); // Mathematical Fraktur small t
+    expect(getAlphabetType('ℭ')).toBe('stylized'); // Black-letter capital C (U+212D)
+    expect(getAlphabetType('Ｏ')).toBe('stylized'); // Fullwidth capital O
+    expect(getAlphabetType('№')).toBe('stylized'); // Letterlike Symbols (U+2116)
+  });
 });
 
 describe('findMixedAlphabetWord', () => {
@@ -86,5 +94,21 @@ describe('findMixedAlphabetWord', () => {
     // Each Greek char appears only once per word — below threshold
     expect(findMixedAlphabetWord('скину сейчас κаждому по 500 гρивен, пишите + в лс')).toBeNull();
     expect(findMixedAlphabetWord('Привіт, як справи? Дякую!')).toBeNull();
+  });
+
+  it('catches Fraktur ("goth alphabet") letters mixed with Cyrillic', () => {
+    // Oct 2026 batch: drone footage promo written in Mathematical Fraktur
+    expect(findMixedAlphabetWord('Ищ𝔢𝔪')).toBe('Ищ𝔢𝔪'); // 2 Cyrillic + 2 Fraktur
+    expect(findMixedAlphabetWord('Пл𝔞𝔱и𝔪')).toBe('Пл𝔞𝔱и𝔪'); // 3 Cyrillic + 3 Fraktur
+    expect(findMixedAlphabetWord('э𝔨𝔠𝔨люзив')).toBe('э𝔨𝔠𝔨люзив'); // 6 Cyrillic + 3 Fraktur
+  });
+
+  it('does not flag a single stylized char in a Cyrillic word (threshold is 2)', () => {
+    expect(findMixedAlphabetWord('тест𝔣')).toBeNull();
+    expect(findMixedAlphabetWord('Номер договору №5')).toBeNull();
+  });
+
+  it('catches fullwidth Latin mixed with Cyrillic', () => {
+    expect(findMixedAlphabetWord('ＯＯплата')).toBe('ＯＯплата'); // 2 fullwidth + 5 Cyrillic
   });
 });

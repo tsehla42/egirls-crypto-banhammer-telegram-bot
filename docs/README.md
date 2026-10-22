@@ -96,7 +96,7 @@ Orchestrates all validation rules. Runs rules in order, returns first match:
 Returns `ValidationResult` with `isValid`, `ruleName`, `triggerWord`, `isPattern`, `isEdit`.
 
 ### validators/mixedAlphabetRule.ts
-Detects character confusion attacks. A word is flagged if any non-dominant alphabet appears 2+ times. Supported alphabets: Latin, Cyrillic (Russian + Ukrainian extended: іїєґІЇЄҐ).
+Detects character confusion attacks. A word is flagged if any non-dominant alphabet appears 2+ times. Supported alphabets: Latin, Cyrillic (Russian + Ukrainian extended: іїєґІЇЄҐ), Greek, and stylized letters (Mathematical Fraktur/bold/italic/script etc., Letterlike Symbols, Fullwidth Latin).
 
 ### validators/greekRule.ts
 Detects Greek alphabet characters (U+0370–U+03FF, U+1F00–U+1FFF). Any Greek character triggers a ban.
@@ -114,6 +114,8 @@ Matches message text against the categorized regex rules in `src/spam-rules.ts` 
 Utility to classify characters by alphabet:
 - `'cyrillic'` — U+0400–U+04FF
 - `'latin'` — A-Z, a-z
+- `'greek'` — U+0370–U+03FF, U+1F00–U+1FFF
+- `'stylized'` — U+1D400–U+1D7FF (Mathematical Fraktur, bold, italic, …), U+2100–U+214F (Letterlike), U+FF21–U+FF5E (Fullwidth Latin)
 - `null` — non-letter or other script
 
 ### services/BanService.ts

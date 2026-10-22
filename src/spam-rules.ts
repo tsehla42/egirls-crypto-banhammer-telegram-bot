@@ -41,6 +41,7 @@ export const spamRules = {
     /заработай\s*\d+/i,
     /работенк/i,
     /деньги сразу по факту/i,
+    /гроші одразу за факт/i,
     /10к за 10 мин/i,
     /хотят зарабатыв/i,
   ],
@@ -125,6 +126,7 @@ export const spamRules = {
     /на пол дня нужны люди/i,
     /не варефікації/i,
     /никаких вложений не требуется/i,
+    /вкладень не потрібно/i,
     /нужны ребята/i,
     /обробки системного трафіку/i,
     /онлайн после стажировки/i,
@@ -189,6 +191,9 @@ export const spamRules = {
     /не\s+колл-центр/i,
     /непостоянн[а-яё]+\s+занятост/i,
     /халтур/i,
+    /введу в курс справи/i,
+    /не зникати з радарів/i,
+    /хто не зник/i,
     /шабашк/i,
     /только для первых/i,
     /для первых отписавших/i,
@@ -196,6 +201,7 @@ export const spamRules = {
     /адекватн[а-яё]+\s+исполнител/i,
     /за гарантии платить не придется/i,
     /платить ни за что не надо/i,
+    /платити ні за що/i,
     /офіційне працевлаштуванн/i,
     /шукаємо людей на робот/i,
     /відкритий набір/i,
@@ -207,6 +213,21 @@ export const spamRules = {
     /беттинг/i,
     /бу[кч]мекер/i,
     /фриспины/i,
+  ],
+
+  // War-themed spam: drone footage buyback, evasion/deferment services, etc.
+  ukraineWar: [
+    /content_bpla_bot/i,
+    // Drone-cam pay spam ("Пл@чy д0 5к д0лар1в zа к@дрN приль0тів дp0н0в").
+    // 2-3 word phrases, not single words: every phrase needs at least one
+    // obfuscation signal (@, Latin lookalike, digit 0), so plain war talk
+    // ("плачу за кадри", "прильоти, дрони") keeps passing while rewording one
+    // phrase still leaves the others to catch the variant.
+    /п[лl][@a][чc][yу][\s\S]{0,20}д0л/i,          // "Пл@чy … д0лар1в" (плачу … долар)
+    /[зz]а\s+к[@a]др\S*\s+приль0т/i,               // "zа к@дрN приль0тів" (за кадри прильотів)
+    /приль0т\S*\s+д[рp]0?н/i,                     // "приль0тів дp0н0в" (прильотів дронів)
+    /booking,? deferment and legal exit/i,
+    /legal exit from (?:ukraine|ua)\b/i,
   ],
 
   sexualSpam: [
@@ -248,6 +269,8 @@ export const spamRules = {
     new RegExp(`одно видео бесплатно${TRAIL}`, 'i'),
     new RegExp(`зробила приємно своїй подрузі${TRAIL}`, 'i'),
     /доставляю (?:с[ое]б[іе]) (?:задоволенн|удовольств)/i,
+    /розважатися на камеру з іграшк/i,
+    /дивляться вже \d+ осіб/i,
   ],
 
   genericSpam: [
@@ -271,7 +294,7 @@ export const spamRules = {
     /победу подряд/i,
     /₽/i,
     /за прості дії/i,
-    /joker_money_rabota/i,
+    /joker_money/i,
     /online_service_tg_bot/i,
     /air_4ak/i,
     /alexareiko/i,

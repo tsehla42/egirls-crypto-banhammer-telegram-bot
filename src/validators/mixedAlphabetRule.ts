@@ -13,7 +13,8 @@ import { getAlphabetType } from './alphabetUtils';
  */
 export const findMixedAlphabetWord = (text: string): string | null => {
   // Split text into words by whitespace — non-alphabet characters (emoji, punctuation,
-  // digits, Greek, CJK, etc.) are ignored by getAlphabetType during counting
+  // digits, etc.) are ignored by getAlphabetType during counting; styled letters
+  // (Fraktur, fullwidth, …) count as the 'stylized' alphabet
   const words = text.split(/\s+/);
 
   for (const word of words) {

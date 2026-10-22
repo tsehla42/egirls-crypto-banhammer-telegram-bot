@@ -77,6 +77,35 @@ describe('Oct 2026 spam batch', () => {
   }
 });
 
+/**
+ * Oct 22, 2026 batch: 10 samples (9 unique — one drone-pay ad forwarded twice).
+ * Covers the new ukraineWar category (drone-cam pay spam, draft-evasion services),
+ * the Fraktur-style char confusion caught by mixed_rule, and Joker_money_work job scams.
+ */
+const oct22_2026Spam: { id: string; text: string; expectedRule: ExpectedRule }[] = [
+  { id: 'intimacy-new-toy-76-viewers', text: 'зараз доставляю собі задоволення своєю новою іграшкою, мене дивляться вже 76 осіб^^', expectedRule: 'keyword_rule' },
+  { id: 'bpla-fraktur-drone-pilots', text: '🆒 Ищ𝔢𝔪 э𝔨𝔠𝔨люзив: п𝔭илё𝔱ы и п𝔬п𝔞д𝔞ния Г𝔢𝔭𝔞н𝔢й. Пл𝔞𝔱и𝔪 з𝔞 г𝔬дн𝔬𝔢 вид𝔢𝔬 — д𝔬 5000 d ollar o v . П𝔬лн𝔞я 𝔞н𝔬ни𝔪н𝔬𝔠𝔱ь. ℭ𝔨идыв𝔞й в @content_bpla_bot 🆒', expectedRule: 'mixed_rule' },
+  { id: 'khalturka-bila-tema-joker-work', text: 'Підкину халтурку на разову роботу на місці! Це біла тема   Ніяких вкладень не потрібно.  Спочатку введу в курс справи... Гроші одразу за фактом! ⁠Тільки для тих, хто не зникає. Напиши мені t.me/Joker_money_work, якщо вийде 🙂', expectedRule: 'keyword_rule' },
+  { id: 'prosta-khaltura-zakonni-joker-work', text: 'Потрібна допомога 🙂 на просту халтуру! Тільки законні справи.  Платити ні за що не треба. ⁠Дам чіткі інструкції 📝! ⁠Скину гроші щойно зробиш! ⁠Підійде той, хто не зливається. Напиши t.me/Joker_money_work, якщо вийде ✌️', expectedRule: 'keyword_rule' },
+  { id: 'sprava-na-vyizd-joker-work', text: 'Хто готовий взятися за справу? на справу на виїзді. Допомога без скаму та всього нелегального  Купувати нічого не потрібно  ⁠Спочатку введу в курс справи...  Гроші одразу за фактом   Вимога одна: не зникати з радарів. Якщо готовий допомогти — чекаю в @Joker_money_work', expectedRule: 'keyword_rule' },
+  { id: 'lezhu-v-lizhku-na-telefon', text: 'лежу в ліжку, знімаю на телефон, як доставляю собі задоволення іграшкою^^ подивитеся?)', expectedRule: 'keyword_rule' },
+  { id: 'podruha-kamera-igrashky', text: 'зараз прийшла до подруги, плануємо розважатися на камеру з іграшками^^ хочете подивитися?) не соромтеся', expectedRule: 'keyword_rule' },
+  { id: 'bpla-drone-cam-pay-5k', text: 'Пл@чy д0 5ķ д0лар1в zа к@дрN приль0тів дp0н0в @content_bpla_bot', expectedRule: 'keyword_rule' },
+  { id: 'bpla-drone-cam-pay-5000', text: 'Пл@чy д0 5OOO д0лл@р1в zа к@дрN приль0тів дp0н0в @content_bpla_bot', expectedRule: 'keyword_rule' },
+  { id: 'bpla-drone-pay-no-handle', text: 'Пл@чy д0 5к д0лар1в за к@дрN приль0тів дp0н0в', expectedRule: 'keyword_rule' },
+  { id: 'booking-deferment-legal-exit', text: 'Help with booking, deferment and legal exit from Ukraine. DM for details.', expectedRule: 'keyword_rule' },
+];
+
+describe('Oct 22 2026 spam batch', () => {
+  for (const { id, text, expectedRule } of oct22_2026Spam) {
+    it(`${id} triggers ${expectedRule}`, () => {
+      const result = validateMessage(text);
+      expect(result.isValid).toBe(false);
+      expect(result.ruleName).toBe(expectedRule);
+    });
+  }
+});
+
 describe('Legitimate messages around new rules should pass', () => {
   const legitimateMessages = [
     'Привіт! Як твої справи?',
@@ -86,6 +115,14 @@ describe('Legitimate messages around new rules should pass', () => {
     'Поговорим пару часов завтра',
     'Отправлю на карту вечером, проверь',
     'Дам четкие инструкции по проекту',
+    // Legit war talk must not hit the ukraineWar category
+    'Дрони збивають над містом щоночі, тримаймося!',
+    'Допомога з виїздом за кордон: бронювання та відстрочка, все легально',
+    'Номер договору №5 підписано, надішлю скан',
+    'Журналісти опублікували кадри з місця події',
+    'Вночі чути було прильоти, дрони летіли на низькій висоті',
+    'Плачу за кадри окремо від решти роботи',
+    'Оплатимо за кадри з дрона, зйомка з висоти',
   ];
 
   for (const text of legitimateMessages) {

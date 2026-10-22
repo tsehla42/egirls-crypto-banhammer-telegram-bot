@@ -68,6 +68,7 @@ export const spamRules = {
   contactRequests: [/пиши в лс/i, // ...],
   jobScam: [/чат менеджер/i, // ...],
   gambling: [/беттинг/i, // ...],
+  ukraineWar: [/content_bpla_bot/i, // ...],
   genericSpam: [/solana/i, // ...],
 } as const;
 

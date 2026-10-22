@@ -32,20 +32,23 @@ interface ValidationResult {
 Detects character confusion attacks where attackers substitute look-alike characters from different scripts (e.g., Latin 'C' instead of Cyrillic 'С', Latin 'i' instead of Cyrillic 'і').
 
 **Algorithm:**
-1. Split text into words (letters only: `a-zA-Zа-яА-ЯіїєґІЇЄҐ`)
-2. For each word, count characters per alphabet (Latin, Cyrillic)
+1. Split text into words by whitespace
+2. For each word, count characters per alphabet (Latin, Cyrillic, Greek, Stylized)
 3. Find the dominant alphabet (most frequent)
 4. If any non-dominant alphabet appears 2+ times → flag as attack
 
 **Examples:**
 - `Складнопідрядний` → all Cyrillic → PASS
 - `Cкладнопiдрядний` → Latin C + Cyrillic к + Latin i + Cyrillic і → FAIL (2 Latin in Cyrillic-dominant word)
+- `Ищ𝔢𝔪` → 2 Cyrillic + 2 Fraktur → FAIL (style-obfuscated Cyrillic)
 
-**Supported alphabets:** Latin, Cyrillic (Russian + Ukrainian extended: іїєґІЇЄҐ)
+**Supported alphabets:** Latin, Cyrillic (Russian + Ukrainian extended: іїєґІЇЄҐ), Greek, Stylized
 
 **Unicode ranges (via `alphabetUtils.ts`):**
 - Cyrillic: U+0400–U+04FF
 - Latin: U+0041–U+005A (A-Z), U+0061–U+007A (a-z)
+- Greek: U+0370–U+03FF (Basic Greek), U+1F00–U+1FFF (Greek Extended)
+- Stylized: U+1D400–U+1D7FF (Mathematical Alphanumeric Symbols — the "goth alphabet" Fraktur, bold, italic, script, …), U+2100–U+214F (Letterlike Symbols), U+FF21–U+FF3A / U+FF41–U+FF5E (Fullwidth Latin)
 
 ---
 
@@ -57,7 +60,7 @@ Matches message text against categorized regex rules defined in `src/spam-rules.
 
 **Data source:** `src/spam-rules.ts`
 - All entries are regex patterns with the `i` flag (case-insensitive)
-- Rules organized into 8 categories: `earnings`, `housing`, `crypto`, `contactRequests`, `jobScam`, `gambling`, `sexualSpam`, `genericSpam`
+- Rules organized into 9 categories: `earnings`, `housing`, `crypto`, `contactRequests`, `jobScam`, `gambling`, `ukraineWar`, `sexualSpam`, `genericSpam`
 - Reusable building blocks: `CURRENCY` (грн/$€₽₴), `AMOUNT` (currency + number patterns), `TRAIL` (optional end-of-message tail for closed phrases)
 - Text is NFC-normalized before matching
 - First matching rule wins
