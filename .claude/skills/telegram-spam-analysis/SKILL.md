@@ -34,6 +34,25 @@ npm run probe -- messages.txt        # raw text, messages separated by a --- lin
 cat msgs.json | npm run probe -- -   # stdin (JSON or raw)
 ```
 
+#### Pasted chat-log inputs — strip decorations first
+
+Batches usually arrive pasted straight from a chat log, looking like this:
+
+```
+[23 10 2026 17:14] kirpich from the dungeon:
+Forwarded from Август Курушин
+На даче нужно собрать мусор и старые вещи...
+```
+
+These lines are **log decoration, not message text** — remove them before probing:
+
+- `[23 10 2026 17:14] username:` — timestamp/sender prefix of the log line (also variants like `[23.10.2026 17:14] Name:`)
+- `Forwarded from <name>` / `Переслано от <name>` — Telegram puts the forward header in `forwardOrigin`, **not** in `ctx.text`; `validateMessage` never sees it in production, so a rule matching it would be dead code (it would also make probe/test results diverge from production)
+
+Put **only the message body** into the probe file and into `recentSpamMessages.test.ts` entries.
+
+Exception: if the same forwarded-from account keeps reappearing, that's not a text-rule job — add it to `data/banned-channels.json` (matched by sender id) instead.
+
 The probe runs `validateMessage` — the app's real pipeline, same rule order — and reports per message:
 
 - **PASSED** — survives everything → needs new rules; full message text is printed for analysis
@@ -173,12 +192,17 @@ After adding rules, always:
 1. Re-run `npm run probe` — every message in the batch must be FLAGGED
 2. Promote the batch to `src/validators/__tests__/recentSpamMessages.test.ts`: per-message `{id, text, expectedRule}` entries, plus legitimate messages as guard cases that must keep passing
 3. Run `npm test` — all green
-4. Increment `version` in `package.json` by 0.0.1
+4. Increment `version` in `package.json` by 0.0.1 — **once per changeset, not per batch**: several batches handled in one working session = one single +0.0.1 total (3 batches today means `z → z+1`, never `z → z+3`)
 5. Run `npm install` to update the lockfile
+
+### Shipping (order matters)
+
+`./bot.sh deploy` runs `git fetch origin && git reset --hard origin/main` on the server — it deploys **pushed GitHub commits only**. Without a commit the deploy ships nothing new (the bot keeps running the old code). Always: `npm test` green → **commit → push → deploy**. Deploying before committing is a no-op on the rules.
 
 ## Quick Reference: Before Submitting
 
 - [ ] Ran `npm run probe` — PASSED analyzed in full, FLAGGED mined for extra `also matches` markers?
+- [ ] Stripped pasted chat-log decorations (`[date] username:`, `Forwarded from <name>`) — probe contains only message text?
 - [ ] Re-probed after adding rules — batch fully FLAGGED?
 - [ ] Batch promoted to `recentSpamMessages.test.ts` and `npm test` green?
 - [ ] Phrase is 2–4 words (or single word that's a very distinctive spam term)?
@@ -186,3 +210,5 @@ After adding rules, always:
 - [ ] Not a false positive in normal Ukrainian/Russian conversation?
 - [ ] Regex has the `i` flag?
 - [ ] Added to the correct category in `spamRules`?
+- [ ] Version bumped **once for the whole changeset** (not once per batch)?
+- [ ] Committed + pushed before deploying (deploy ships `origin/main` only)?

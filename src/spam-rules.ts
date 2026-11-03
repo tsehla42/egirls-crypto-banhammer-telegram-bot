@@ -44,6 +44,11 @@ export const spamRules = {
     /гроші одразу за факт/i,
     /10к за 10 мин/i,
     /хотят зарабатыв/i,
+    new RegExp(`[—–-]\\s*\\d[\\s\\d]*\\s*на\\s+руки`, 'i'), // "— 5 700 на руки"
+    /расч[её]т\s+на\s+руки/i,
+    /оплат[аы]\s+по\s+завершени/i,
+    /выплат[ыи]\s+в\s+тот\s+же\s+день/i,
+    /после\s+(?:работы|выполнения)\s*[—–-]\s*\d/i, // "после работы — 5 200"
   ],
 
   housing: [
@@ -73,6 +78,10 @@ export const spamRules = {
     /відстежуємо гаманц/i,
     /викрадені актив/i,
     /повернення кошт/i,
+
+    // Oct 23 2026: "Всем привет) Куплю U.S.D.T. Интересуют большие объемы."
+    /u\.s\.d\.t/i, // dotted obfuscation — nobody types USDT legit with dots
+    /куплю\s+u[\s.]*s[\s.]*d[\s.]*t/i, // buy CTA + USDT in any dot/spacing form
   ],
 
   contactRequests: [
@@ -150,6 +159,7 @@ export const spamRules = {
     /требуетcя/i,
     /трeбуется/i,
     /требуeтся/i,
+    /требуют[сc]я/i, // inflected "требуются" — /требуется/i misses the ю; Latin c obfuscated form
     /ищем сотрудника в чат/i,
     /ищем помощника в команду/i,
     /срочно ищем помощник/i,
@@ -166,6 +176,11 @@ export const spamRules = {
     /работа в переписке/i,
     /никаких обзвон/i,
     /нужен ответственный человек/i,
+    /нужен быстрый заработ/i, // "нужен быстрый заработок?" job-lure question
+    /без опыта и вложени/i, // "без опыта и вложений" no-barrier claim
+    /ваканси[а-яё]*\s+в\s+разн/i, // "Вакансии в разных сферах: доставка, склады…"
+    /можна\s+без\s+досвід/i, // "Можна без досвіду" (UA staffing frame)
+    /нужны\s+\d+\s+челове/i, // "нужны 2 человека" staffing frame (num + человек)
     /просьба на физическую работ/i,
     /нужен человек на ваканси/i,
     /жу отклика в лич/i,
@@ -298,6 +313,14 @@ export const spamRules = {
     /online_service_tg_bot/i,
     /air_4ak/i,
     /alexareiko/i,
+    // Oct 30–Nov 3 2026 job-spam campaign handles (forwarded from Deleted
+    // Account); obfuscated text is caught by mixed/greek, handles are the
+    // clean-text fallback — may go stale when the campaign rotates
+    /geranpp/i,
+    /vladislavhr/i,
+    /loganjimenez/i,
+    // USDT bulk-buy lure ("Интересуют большие объемы") — 3-word trade bait
+    /интересуют\s+большие\s+объ?[её]м/i,
   ],
 } as const;
 

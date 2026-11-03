@@ -106,9 +106,96 @@ describe('Oct 22 2026 spam batch', () => {
   }
 });
 
+/**
+ * Oct 23, 2026 batch: 10 day-labor ads forwarded from "Август Курушин"
+ * ("Сразу после работы — 5 700 на руки"). Amounts vary (5 200–5 700) and
+ * phrasing rotates between 4 templates, so every message carries at least
+ * 2 independent markers: amount+на руки / расчёт на руки / оплата по
+ * завершении / выплата в тот же день / после работы—N / требуются / нужны N человек.
+ */
+const oct23_2026Spam: { id: string; text: string; expectedRule: ExpectedRule }[] = [
+  { id: 'dacha-sbor-musora-5700', text: 'На даче нужно собрать мусор и старые вещи и сложить их возле ворот. Работа на несколько часов. Сразу после работы — 5 700 на руки.', expectedRule: 'keyword_rule' },
+  { id: 'razbor-zabora-doski-5200', text: 'После разбора забора нужно убрать оставшиеся доски. Требуются 2 человека. Расчёт на руки сразу после работы — 5 200.', expectedRule: 'keyword_rule' },
+  { id: 'posle-remonta-meshki-5200', text: 'После ремонта нужно собрать мусор в мешки. Требуются 2 человека. Оплата по завершении — 5 200 на руки.', expectedRule: 'keyword_rule' },
+  { id: 'perenesti-bloki-5200', text: 'На участке нужно перенести строительные блоки. Требуются 3 человека. Сразу после работы — 5 200 на руки.', expectedRule: 'keyword_rule' },
+  { id: 'meshki-materialy-stena-5700', text: 'Нужно перенести несколько мешков с материалами и сложить их у стены. Расчёт на руки сразу после работы — 5 700.', expectedRule: 'keyword_rule' },
+  { id: 'perestanovka-mebeli-5200', text: 'Сегодня после 18:00 нужны 2 человека для перестановки мебели. Выплата в тот же день — 5 200.', expectedRule: 'keyword_rule' },
+  { id: 'kladovka-veshchi-5400', text: 'Вечером нужно разобрать вещи в кладовке. После выполнения — 5 400 на руки.', expectedRule: 'keyword_rule' },
+  { id: 'razgruzit-mashinu-5200', text: 'Завтра нужно разгрузить небольшую машину. Требуются 2 человека, работа примерно на 2 часа. Расчёт на руки сразу после работы — 5 200.', expectedRule: 'keyword_rule' },
+  { id: 'razobrat-tumbu-5200', text: 'Завтра нужны 2 человека, чтобы разобрать старую тумбу и вынести детали. Выплата в тот же день — 5 200.', expectedRule: 'keyword_rule' },
+  { id: 'ubrat-starye-doski-5200', text: 'Завтра нужны 2 человека, чтобы убрать старые доски с площадки. Оплата по завершении — 5 200 на руки.', expectedRule: 'keyword_rule' },
+];
+
+describe('Oct 23 2026 day-labor batch', () => {
+  for (const { id, text, expectedRule } of oct23_2026Spam) {
+    it(`${id} triggers ${expectedRule}`, () => {
+      const result = validateMessage(text);
+      expect(result.isValid).toBe(false);
+      expect(result.ruleName).toBe(expectedRule);
+    });
+  }
+});
+
+/**
+ * Oct 23, 2026 (later): USDT bulk-buy lure — dotted obfuscation + volume bait.
+ */
+const usdtBuySpam: { id: string; text: string; expectedRule: ExpectedRule }[] = [
+  { id: 'kuply-usdt-bolshie-obyemy', text: 'Всем привет) Куплю U.S.D.T. Интересуют большие объемы.', expectedRule: 'keyword_rule' },
+];
+
+describe('Oct 23 2026 USDT buy batch', () => {
+  for (const { id, text, expectedRule } of usdtBuySpam) {
+    it(`${id} triggers ${expectedRule}`, () => {
+      const result = validateMessage(text);
+      expect(result.isValid).toBe(false);
+      expect(result.ruleName).toBe(expectedRule);
+    });
+  }
+});
+
+/**
+ * Oct 30 – Nov 3 2026 batch: job-spam campaign forwarded from "Deleted Account"
+ * (3 text variants of the @VladislavHR lure, @geranpp vacancy digest, and the
+ * @LoganJimenez549 price-bait post). All obfuscated copies are caught by
+ * mixed_rule in prod (first-hit word logged); the clean variants below are the
+ * keyword fallback net in case the spammer drops the obfuscation.
+ */
+const nov2_2026Spam: { id: string; text: string; expectedRule: ExpectedRule }[] = [
+  { id: 'geranpp-vakansii-obfusked', text: '💼 Рабoтa и подpα6oтκα\n🔎 Βακahсии в ра3ηыχ сферaх: дοставка, сkлады, мага3ины и мнοгое другое.\n\n👇 ЖМИ НИЖЕ И HΑЙДИ CBΟЮ PАБОТУ! 🚀\n@geranpp', expectedRule: 'mixed_rule' },
+  { id: 'vladislavhr-bystryy-zarabotok-1', text: 'Здраствуйте,нужен быстрый зaрa6отоκ?Могу прeдложить,без οпытa и вложений!\nПиши Сюда➡️@VladislavHR', expectedRule: 'mixed_rule' },
+  { id: 'vladislavhr-bystryy-zarabotok-2', text: '3дрaствуйтe,нужεη 6ыcтрый зaρаботoк?Мoгу предложить,бeз опыта и влοжений!\nΠиши Ϲюдa➡️@VladislavHR', expectedRule: 'mixed_rule' },
+  { id: 'vladislavhr-bystryy-zarabotok-3', text: '3дρaстβуйте,нyжеh быстрый ȝаработоk?Могy πрεдложить,беȝ οпыта и вложений!\nПиши Сюда➡️@VladislavHR', expectedRule: 'mixed_rule' },
+  { id: 'logan-jimenez-tseny-rastut', text: '🥬 Цены ραстут, рαcходы рαстут, а 3арπлата вϲё та жε?\n\nШукаємо bідпоβідалbηиẍ людей для ρоботи.\nОплатa — 1500$ на місяць + бонyси.\nMожhа 6е3 дoϲbідy.\nПишіть у привaтні➡️ @LoganJimenez549\n\nНe о6язательно мириться c этим.\nПомогу найти дополηительhые вοзможности для зαрабοтка\nПиши мне @geranpp', expectedRule: 'mixed_rule' },
+  // de-obfuscated variants — keyword fallback
+  { id: 'geranpp-vakansii-clean', text: 'Работа и подработка\nВакансии в разных сферах: доставка, склады, магазины и многое другое.\n\n👇 ЖМИ НИЖЕ И НАЙДИ СВОЮ РАБОТУ! 🚀\n@geranpp', expectedRule: 'keyword_rule' },
+  { id: 'vladislavhr-clean-spaced', text: 'Здраствуйте,нужен быстрый заработок?Могу предложить,без опыта и вложений!\nПиши Сюда ➡️ @VladislavHR', expectedRule: 'keyword_rule' },
+  { id: 'logan-jimenez-clean', text: 'Цены растут, расходы растут, а зарплата всё та же?\n\nШукаємо відповідальних людей для роботи.\nОплата — 1500$ на місяць + бонуси.\nМожна без досвіду.\nПишіть у приватні➡️ @LoganJimenez549\n\nНе обязательно мириться с этим.\nПомогу найти дополнительные возможности для заработка\nПиши мне @geranpp', expectedRule: 'keyword_rule' },
+];
+
+describe('Oct 30 – Nov 3 2026 job-spam campaign', () => {
+  for (const { id, text, expectedRule } of nov2_2026Spam) {
+    it(`${id} triggers ${expectedRule}`, () => {
+      const result = validateMessage(text);
+      expect(result.isValid).toBe(false);
+      expect(result.ruleName).toBe(expectedRule);
+    });
+  }
+});
+
 describe('Legitimate messages around new rules should pass', () => {
   const legitimateMessages = [
     'Привіт! Як твої справи?',
+    // Oct 30–Nov 3 2026 rule guards: same words, no spam template
+    'Є вакансії в різних містах країни, надішлю деталі',
+    'Швидкий заработок — це міф, не ведіться на такі оголошення',
+    'Питання без досвіду: напишіть, поясню з чого почати',
+    // Oct 23 2026 rule guards: same words, no spam template
+    'Отправлю тебе 100 USDT завтра утром',
+    'Интересуют большие партии, объём вагонами',
+    'Сразу после работы заеду в магазин за хлебом',
+    'Расчёт за услуги подрядчика проведём в пятницу',
+    'После выполнения работ подрядчик пришлёт акт',
+    'Нужно собрать мусор и вынести к утру, помогите?',
     'Дякую за допомогу, все працює',
     'Пиши коли звільнишся, поговоримо',
     'Как дела? Напиши позже',
