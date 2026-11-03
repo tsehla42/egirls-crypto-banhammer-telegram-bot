@@ -30,13 +30,18 @@ Telegram bot for moderating group chats against spam accounts. Written in TypeSc
 - Do not create .md files unless explicitly asked
 - Do not commit changes without user approval
 - Spam rules live in `src/spam-rules.ts` — they directly control who gets banned; all entries must be regex with the `i` flag
+- Do not add multi-line comment blocks in `src/spam-rules.ts` — provenance/notes go inline on the rule's own line (`/pattern/i, // comment`)
 - Do not use unescaped angle brackets in strings sent with `parse_mode: "HTML"` — `<` must be `&lt;`, `>` must be `&gt;` unless it's a known Telegram tag (`<b>`, `<i>`, `<code>`, `<a>`). See [Incidents](docs/incidents) for a real example of this causing silent failures.
 
 ## Operations
 
 - Pull bot logs from prod: `./bot.sh pull-data`
 - Run tests: `npm test`
-- **Spam rule batches:** `npm run probe -- <file>` (JSON array, `---`-separated text, or `-` for stdin) runs messages through the real pipeline (banned_channel → mixed → keyword → greek → korean → chinese). PASSED = needs new rules (analyze full text); FLAGGED = harvest extra markers from the `also matches` lines. After adding rules: re-probe → promote batch to `src/validators/__tests__/recentSpamMessages.test.ts` → `npm test` → increment `version` in `package.json` by 0.0.1 → `npm install` to update the lockfile
+- **Spam rule batches:** `npm run probe -- <file>` (JSON array, `---`-separated text, or `-` for stdin) runs messages through the real pipeline (banned_channel → mixed → keyword → greek → korean → chinese). PASSED = needs new rules (analyze full text); FLAGGED = harvest extra markers from the `also matches` lines. **Pasted batches may include chat-log decorations — `[date] username:` header lines and `Forwarded from <name>` lines; strip both, only the message body is real text (`validateMessage` never sees forward headers).** After adding rules: re-probe → promote batch to `src/validators/__tests__/recentSpamMessages.test.ts` → `npm test` → increment `version` in `package.json` by 0.0.1 → `npm install` to update the lockfile
+
+**Version bumping:** increment `version` **once per changeset**, not per batch. If several spam batches were handled in one working session (same session, one delivery), a single +0.0.1 covers all of them — three batches in a day = `x.y.z` → `x.y.(z+1)`, not +3.
+
+**Deploy requires a commit first:** `./bot.sh deploy` runs `git fetch origin && git reset --hard origin/main` on the server — it deploys **pushed commits from GitHub only**. Uncommitted (or unpushed) local changes deploy nothing; the bot just re-runs the old code. Order is always: `npm test` green → commit → push → deploy.
 
 **Deploy timing:** `./bot.sh deploy` runs remotely and can take several minutes. Run it and return without waiting for it to finish — the script handles everything internally.
 

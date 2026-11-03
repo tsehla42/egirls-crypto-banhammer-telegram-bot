@@ -1,6 +1,6 @@
 {
   "name": "egirls-crypto-banhammer-telegram-bot",
-  "version": "1.4.86",
+  "version": "1.4.87",
   "description": "Bot made for chat moderation of comments chat in Telegram messenger",
   "author": "tsehla42",
   "license": "GPL-3.0",
@@ -11,9 +11,9 @@
     "bot": "nodemon -w dist -x node dist/bot.js",
     "dev": "concurrently npm:watch-compile npm:bot",
     "compose": "compose.sh",
-    "clean-messages": "npx ts-node references/clean-messages.ts",
-    "list-groups": "npx ts-node scripts/list-bot-groups.ts",
-    "unban-test-user": "npx ts-node scripts/unban-test-user.ts",
+    "clean-messages": "npx tsx references/clean-messages.ts",
+    "list-groups": "npx tsx scripts/list-bot-groups.ts",
+    "unban-test-user": "npx tsx scripts/unban-test-user.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "probe": "npx tsc && node dist/tools/probe-spam.js"
@@ -22,6 +22,7 @@
     "@types/node": "26.4.1",
     "concurrently": "10.0.5",
     "nodemon": "3.1.14",
+    "tsx": "4.23.15",
     "typescript": "7.0.2",
     "vitest": "5.0.0"
   },

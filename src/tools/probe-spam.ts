@@ -2,7 +2,7 @@
  * Spam probe — the default verification tool for spam rule batches.
  *
  * Runs messages through the EXACT pipeline the bot uses at runtime
- * (`validateMessage`: banned_channel → mixed → keyword → greek → korean → chinese)
+ * (`validateMessage`: banned_channel → mixed → keyword → greek → korean → chinese → turkic)
  * and reports, per message:
  *
  *   - FLAGGED: authoritative first-hit rule + EVERY other rule that also
@@ -26,6 +26,7 @@ import { findMixedAlphabetWord } from '../validators/mixedAlphabetRule';
 import { findGreek } from '../validators/greekRule';
 import { findKorean } from '../validators/koreanRule';
 import { findChinese } from '../validators/chineseRule';
+import { findTurkic } from '../validators/turkicRule';
 
 interface ProbeMessage {
   id: string;
@@ -83,6 +84,9 @@ const collectMatches = (text: string): string[] => {
   const chinese = findChinese(text);
   if (chinese !== null) matches.push(`chinese: ${chinese}_chars`);
 
+  const turkic = findTurkic(text);
+  if (turkic !== null) matches.push(`turkic: ${turkic}_chars`);
+
   return matches;
 };
 
@@ -115,7 +119,7 @@ const main = (): void => {
   }
 
   console.log(`Spam probe — ${messages.length} messages`);
-  console.log('Pipeline (same as app): banned_channel → mixed → keyword → greek → korean → chinese');
+  console.log('Pipeline (same as app): banned_channel → mixed → keyword → greek → korean → chinese → turkic');
   console.log('');
 
   console.log(`=== PASSED (${passed.length}) — survive the pipeline, need new rules ===`);

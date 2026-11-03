@@ -33,6 +33,7 @@ src/
     keywordRule.ts              # Match spam regex rules from spam-rules.ts
     koreanRule.ts               # Detect Korean (Hangul) characters
     mixedAlphabetRule.ts        # Detect mixed-alphabet character confusion
+    turkicRule.ts               # Detect Azerbaijani/Turkish (Latin-Turkic) text
     validateMessage.ts          # Orchestrator — runs all rules
   utils/
     index.ts                    # Barrel export
@@ -136,7 +137,9 @@ Same flow as normal message, but `isEdit = true`. The ban reason reply includes 
    → >15 Korean (Hangul) characters → ban
 5. findChinese(text)
    → >4 Chinese (CJK) characters → ban
-6. All pass → { isValid: true }
+6. findTurkic(text)
+   → 2+ Azerbaijani/Turkish (Latin-Turkic: ə ı ğ ş ö ç ü) characters → ban
+7. All pass → { isValid: true }
 ```
 
 ## Chat Registry

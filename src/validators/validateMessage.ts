@@ -7,6 +7,7 @@ import { findMixedAlphabetWord } from './mixedAlphabetRule';
 import { findGreek } from './greekRule';
 import { findKorean } from './koreanRule';
 import { findChinese } from './chineseRule';
+import { findTurkic } from './turkicRule';
 import { findSpamKeyword } from './keywordRule';
 import { RULE } from '../strings';
 
@@ -75,6 +76,15 @@ export const validateMessage = (text: string, senderId?: number): ValidationResu
       isValid: false,
       ruleName: RULE.CHINESE,
       triggerWord: `${chineseCount}_chinese_chars`,
+    };
+  }
+
+  const turkicCount = findTurkic(text);
+  if (turkicCount !== null) {
+    return {
+      isValid: false,
+      ruleName: RULE.TURKIC,
+      triggerWord: `${turkicCount}_turkic_chars`,
     };
   }
 

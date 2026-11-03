@@ -117,6 +117,10 @@ const buildBanReason = (validation: ValidationResult, wrap: (word: string) => st
       const count = triggerWord.split('_')[0];
       return REASON.CHINESE_CHARS.replace("{count}", count);
     }
+    case 'turkic_rule': {
+      const count = triggerWord.split('_')[0];
+      return REASON.TURKIC_CHARS.replace("{count}", count);
+    }
     case 'banned_channel_rule':
       return REASON.BANNED_CHANNEL.replace("{trigger}", wrap(triggerWord));
     default:

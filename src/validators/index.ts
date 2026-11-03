@@ -2,6 +2,7 @@ export { findMixedAlphabetWord } from './mixedAlphabetRule';
 export { findGreek } from './greekRule';
 export { findKorean } from './koreanRule';
 export { findChinese } from './chineseRule';
+export { findTurkic } from './turkicRule';
 export { findSpamKeyword } from './keywordRule';
 export { validateMessage, type ValidationResult } from './validateMessage';
 export { getAlphabetType } from './alphabetUtils';

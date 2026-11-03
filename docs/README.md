@@ -9,7 +9,7 @@ Bot monitors a Telegram group chat (linked to a channel for comments). Each new 
 ## Documentation
 
 - [Architecture](architecture/) - Project structure, message flow, skip logic
-- [Validators](validators/) - All moderation rules (mixed alphabet, Greek, Korean, Chinese, keywords)
+- [Validators](validators/) - All moderation rules (mixed alphabet, Greek, Korean, Chinese, Turkic, keywords)
 - [Services](services/) - Ban, reply, forwarding, logging, permissions, chat registry
 - [Deployment](deployment/) - Docker setup, production commands
 - [Configuration](configuration/) - Environment variables
@@ -92,6 +92,7 @@ Orchestrates all validation rules. Runs rules in order, returns first match:
 3. Greek rule (`findGreek`)
 4. Korean rule (`findKorean`)
 5. Chinese rule (`findChinese`)
+6. Turkic rule (`findTurkic`)
 
 Returns `ValidationResult` with `isValid`, `ruleName`, `triggerWord`, `isPattern`, `isEdit`.
 
@@ -106,6 +107,9 @@ Counts Korean (Hangul) characters. Bans if count exceeds threshold (15). Covers 
 
 ### validators/chineseRule.ts
 Counts CJK (Chinese/Han) characters. Bans if count exceeds threshold (4). Covers CJK Unified Ideographs, Extension A, Compatibility, and Extension B.
+
+### validators/turkicRule.ts
+Counts distinctive Latin-Turkic characters (Azerbaijani/Turkish: `ə ı ğ ş ö ç ü`). Bans if count exceeds threshold (2). UA/RU legit text never uses these letters, so 2+ is a reliable language fingerprint; a single character (e.g. one Turkic proper noun) passes.
 
 ### validators/keywordRule.ts
 Matches message text against the categorized regex rules in `src/spam-rules.ts` (every entry carries the `i` flag). Rules are imported at startup — restart the bot after changes.
@@ -214,6 +218,7 @@ MessageHandler.handleMessage()
     |   +-- Greek rule → Greek characters present?
     |   +-- Korean rule → >15 Korean characters?
     |   +-- Chinese rule → >4 Chinese characters?
+    |   +-- Turkic rule → 2+ Azerbaijani/Turkish (Latin-Turkic) characters?
     |   +-- All pass → isValid: true (no action)
     |
     +-- [VIOLATION FOUND]

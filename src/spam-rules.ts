@@ -25,7 +25,7 @@ export const spamRules = {
     /платим за результат/i,
     /подработка с доход/i,
     /с доходом около/i,
-    /стабильный доход/i,
+    /стабильн[а-яё]+\s+доход/i, // "В поисках стабильного дохода?" — covers стабильный/стабильного дохода
     /стабільний заробіт/i,
     /тис.\/тиждень/i,
     /тысяч рублей/i,
@@ -35,6 +35,7 @@ export const spamRules = {
     /пар[уа]\s+часов\s+(?:дела|работ)/i,
     /деньги в руки\s*\d+/i,
     /платим после смены/i,
+    new RegExp(`платим\\s+${AMOUNT}\\s+за\\s+смен`, 'i'), // "Мы платим 150$ за смену" (last word stemmed: смен)
     /на карту от\s*[\d.,]+/i,
     /за выполнение задани/i,
     /заплатим\s*\d+/i,
@@ -44,6 +45,11 @@ export const spamRules = {
     /гроші одразу за факт/i,
     /10к за 10 мин/i,
     /хотят зарабатыв/i,
+    new RegExp(`[—–-]\\s*\\d[\\s\\d]*\\s*на\\s+руки`, 'i'), // "— 5 700 на руки"
+    /расч[её]т\s+на\s+руки/i,
+    /оплат[аы]\s+по\s+завершени/i,
+    /выплат[ыи]\s+в\s+тот\s+же\s+день/i,
+    /после\s+(?:работы|выполнения)\s*[—–-]\s*\d/i, // "после работы — 5 200"
   ],
 
   housing: [
@@ -73,6 +79,14 @@ export const spamRules = {
     /відстежуємо гаманц/i,
     /викрадені актив/i,
     /повернення кошт/i,
+
+    // Oct 23 2026: "Всем привет) Куплю U.S.D.T. Интересуют большие объемы."
+    /u\.s\.d\.t/i, // dotted obfuscation — nobody types USDT legit with dots
+    /куплю\s+u[\s.]*s[\s.]*d[\s.]*t/i, // buy CTA + USDT in any dot/spacing form
+    /тезр/i, // gibberish token word in "Нужно докупить тезр TРC20" top-up scam — may rotate with campaign
+    /докупить[\s\S]{0,25}t[рr]c[\s-]?20/i, // "докупить … TРC20" purchase CTA + token standard (Р Cyrillic or r Latin)
+    /uз[дd][тt]/i, // "Uздт" — USDT with Cyrillic з/д/т; mixed_rule misses it (only 1 Latin char in word)
+    /t[рr]c[\s-]?20[\s\S]{0,60}(?:пишите|напиш|пиши)/i, // "Нужен Uздт TRC20 … Пишите по условиям" — token standard + contact CTA
   ],
 
   contactRequests: [
@@ -80,6 +94,7 @@ export const spamRules = {
     /(?:кинь|пиши|напиши).{0,3}\+.{0,3}в\s*лс/i,
     /за подробностями[\s\S]*?в\s*[лЛ][сС]/i,
     /деталі в особист/i,
+    /(?:пиши|напиши|напишіть|пишіть)\s+в\s+пп/i, // UA "напиши в ПП" (приватні повідомлення) DM redirect
     /кому интересно напишите/i,
     /напишет \+ в лс/i,
     /пиши \+ в лс/i,
@@ -88,7 +103,7 @@ export const spamRules = {
     /пиши в особист/i,
     /пишите для получения подробност/i,
     /ставь \+ в директ/i,
-    /axtarışa\s+\S+\s+yaz/i,
+    /axtar[ıi][sş]\S*\s+\S+\s+yaz/i, // "Axtarışa X yaz" + plain-s variant "Axtarisa ifsaoldbaku yaz"
     /если интересно — напиши/i,
     /заходите в профиль/i,
     /переходи в мой профиль/i,
@@ -105,6 +120,7 @@ export const spamRules = {
     /впер[её]д\s*[—-]\s*в\s+шапку/i,
     /условия у меня в личк/i,
     /пишіть у приват/i,
+    /пишіть\s+\+.{0,14}(?:тут|приват)/i, // "пишіть + тут або в приват" — UA "+ here" redirect
     /дальше\s*[—-]\s*по ссылке/i,
   ],
 
@@ -128,6 +144,7 @@ export const spamRules = {
     /никаких вложений не требуется/i,
     /вкладень не потрібно/i,
     /нужны ребята/i,
+    /нужны бабк/i, // "НУЖНЫ БАБКИ? ПИСАТЬ МНЕ!" money-lure question (stem: бабки)
     /обробки системного трафіку/i,
     /онлайн после стажировки/i,
     /онлайн-работ/i,
@@ -145,11 +162,17 @@ export const spamRules = {
     /требуется/i,
     /удалённая работ/i,
     /удалённо/i,
+    /удалёнк/i, // "Есть удалёнка с оплатой от $560" — remote-work bait (stem: удалёнк)
+    /робот[ау]\s+без\s+офіс/i, // UA "роботу без офісу" — RU работа без офиса already covered
+    /ніякої заборонк/i, // UA "ніякої заборонки" — no-bans claim (RU никакой запрещенки covered)
+    /оплатимо\s+після\s+виконанн/i, // UA "Оплатимо після виконання" (RU оплатим после выполнения covered)
+    /потрібн[а-яёіїє]\s+відповідальн/i, // UA "Потрібна відповідальна людина" (RU нужен ответственный человек covered)
     /чат менеджер/i,
     /старт в hr без опыта/i,
     /требуетcя/i,
     /трeбуется/i,
     /требуeтся/i,
+    /требуют[сc]я/i, // inflected "требуются" — /требуется/i misses the ю; Latin c obfuscated form
     /ищем сотрудника в чат/i,
     /ищем помощника в команду/i,
     /срочно ищем помощник/i,
@@ -166,6 +189,11 @@ export const spamRules = {
     /работа в переписке/i,
     /никаких обзвон/i,
     /нужен ответственный человек/i,
+    /нужен быстрый заработ/i, // "нужен быстрый заработок?" job-lure question
+    /без опыта и вложени/i, // "без опыта и вложений" no-barrier claim
+    /ваканси[а-яё]*\s+в\s+разн/i, // "Вакансии в разных сферах: доставка, склады…"
+    /можна\s+без\s+досвід/i, // "Можна без досвіду" (UA staffing frame)
+    /нужны\s+\d+\s+челове/i, // "нужны 2 человека" staffing frame (num + человек)
     /просьба на физическую работ/i,
     /нужен человек на ваканси/i,
     /жу отклика в лич/i,
@@ -179,6 +207,8 @@ export const spamRules = {
     /потрібні люди на/i,
     /отвечать клиент/i,
     /обучение перед старт/i,
+    /работа\s+подстраивается\s+под\s+тебя/i, // "Работа подстраивается под тебя 😉" adaptive-schedule bait
+    /нужны\s+деньги\s*\?.{0,30}(?:пиши|напиши|писать)/i, // "НУЖНЫ ДЕНЬГИ? ПИШИ МНЕ!" money-lure + redirect
 
     /не оф[іи]с[,.] не скам/i,
     /Л[её]гкий кеш/i,
@@ -255,6 +285,8 @@ export const spamRules = {
     new RegExp(`знімає(?:мо)?\\s+на\\s+відео\\s+і\\s+показує(?:мо)?\\s+всім\\s+прямо\\s+зараз${TRAIL}`, 'i'),
     new RegExp(`знімаємо\\s+це\\s+на\\s+телефон${TRAIL}`, 'i'),
     /az[əe]ri ifşa/i,
+    /ifşa\s+video/i, // "ifşa videoları üçün" AZ explicit-content lure (last word stemmed → video)
+    /miss\s+ləm/i, // "Miss Ləman" recurring leak-content persona — may go stale when account rotates
     // closed endings carry TRAIL, truncated stems stay open
     new RegExp(`покажу себя в лс${TRAIL}`, 'i'),
     /играюсь с подружк/i,
@@ -275,7 +307,6 @@ export const spamRules = {
 
   genericSpam: [
     /н[еe]д[eе]л/i,
-    /.xyz/i,
     /pump fun/i,
     /simple money/i,
     /solana/i,
@@ -297,7 +328,20 @@ export const spamRules = {
     /joker_money/i,
     /online_service_tg_bot/i,
     /air_4ak/i,
-    /alexareiko/i,
+    /alexareiko/i, // obfuscated text is caught by mixed/greek, handles are the clean-text fallback — may go stale when the campaign rotates
+    /geranpp/i,
+    /vladislavhr/i,
+    /loganjimenez/i,
+    /telelog/i, // clean fallback for @telelogfunnibot / telelog_link — obfuscated "тeⅼеłοg" copy is caught by mixed_rule
+    /namios\.space/i, // clean-form scam landing domain (obfuscated copy flagged by mixed_rule)
+    /joker_26/i, // @Joker_26_m — rotating numeric Joker handle (joker_money already covered) — may go stale
+    /интересуют\s+большие\s+объ?[её]м/i, // USDT bulk-buy lure ("Интересуют большие объемы") — 3-word trade bait
+    /дам\s*[\d.,]+\s*на\s+пробу/i, // "Дам 05 на пробу любого товара мест всего 7 пиши" / "Дам 0.5 на пробу"
+    /на пробу любого товар/i, // shared phrase, stem: товар (товара/товару/товаров)
+    /(?:\d+\s+мест[а-яё]*\s+пиши|мест[а-яё]*\s+всего\s+\d+\s+пиши)/i,
+    /мислення\s*\|\s*життя/i, // "Мислення | Життя | Психологія »" pipe-separated channel-title funnel header
+    /judithlee/i, // @JudithLee6 job-lure handle — may go stale when campaign rotates
+    /kiraworkkk/i, // @KIRAworkkk day-labor lure handle — may go stale when campaign rotates // "5 мест пиши" / "мест всего 7 пиши"
   ],
 } as const;
 

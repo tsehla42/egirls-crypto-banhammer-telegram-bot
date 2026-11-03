@@ -7,9 +7,9 @@ Moderation rules that detect spam messages. Each rule is a separate module with 
 `validateMessage(text)` in `validateMessage.ts` runs all rules in order. First match wins — subsequent rules are not checked.
 
 ```
-text → mixedAlphabet → keyword → greek → korean → chinese → pass
-         ↓ match?        ↓         ↓        ↓         ↓
-         return        return    return   return    return
+text → mixedAlphabet → keyword → greek → korean → chinese → turkic → pass
+         ↓ match?        ↓         ↓        ↓         ↓         ↓
+         return        return    return   return    return    return
 ```
 
 ## ValidationResult
@@ -17,7 +17,7 @@ text → mixedAlphabet → keyword → greek → korean → chinese → pass
 ```typescript
 interface ValidationResult {
   isValid: boolean;       // true = message passes all rules
-  ruleName?: string;      // 'mixed_rule' | 'keyword_rule' | 'greek_rule' | 'korean_rule' | 'chinese_rule'
+  ruleName?: string;      // 'mixed_rule' | 'keyword_rule' | 'greek_rule' | 'korean_rule' | 'chinese_rule' | 'turkic_rule'
   triggerWord?: string;   // The word/keyword/character count that triggered the ban
   isEdit?: boolean;       // Set externally when triggered by message edit
 }
@@ -136,6 +136,22 @@ Counts CJK (Chinese/Han) characters in the message. Bans if count exceeds thresh
 **Why threshold?** CJK ranges cover Chinese, Japanese, and Korean Han ideographs. A small number allows brand names or borrowed terms.
 
 **Return type:** Count of CJK characters if threshold exceeded, `null` otherwise.
+
+---
+
+### Turkic Rule
+
+**File:** `turkicRule.ts`
+
+Counts distinctive Latin-Turkic characters (Azerbaijani/Turkish alphabet) in the message. Bans if count exceeds threshold.
+
+**Threshold:** 2 characters (count > 1)
+
+**Characters:** `ə ı ğ ş ö ç ü` (the `i` flag also folds `Ə Ğ Ş Ö Ç Ü`; JS does not fold `ı` onto plain `i`, so Latin `i` never counts)
+
+**Why?** Ukrainian/Russian legit text never uses these letters, so 2+ anywhere in a message is a reliable Azerbaijani/Turkish language fingerprint — the Latin-script equivalent of the Greek rule. One character is allowed so a lone Turkic proper noun in a Cyrillic message (e.g. "Süleyman") still passes; short all-plain-transliteration spam (e.g. "Axtarisa ifsaoldbaku yaz") has zero distinctive chars and stays covered by keyword rules.
+
+**Return type:** Count of Turkic characters if threshold exceeded, `null` otherwise.
 
 ---
 

@@ -32,6 +32,7 @@ export const REASON = {
   GREEK_SYMBOL: "Message contains Greek alphabet symbol in word {trigger}",
   KOREAN_CHARS: "Message contains {count} Korean characters (threshold: 15)",
   CHINESE_CHARS: "Message contains {count} Chinese characters",
+  TURKIC_CHARS: "Message contains {count} Turkic-Latin characters (Azerbaijani/Turkish)",
   BANNED_CHANNEL: "Repost of malicious channel {trigger}",
   UNKNOWN: "Unknown reason: {trigger}",
 } as const;
@@ -43,6 +44,7 @@ export const RULE = {
   GREEK: "greek_rule",
   KOREAN: "korean_rule",
   CHINESE: "chinese_rule",
+  TURKIC: "turkic_rule",
   MANUAL_BAN: "manual_ban",
   TRIGGER_MANUAL_BAN: "manual_ban_by_admin",
 } as const;
